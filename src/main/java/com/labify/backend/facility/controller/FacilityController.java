@@ -23,12 +23,12 @@ public class FacilityController {
 
     // [POST] 시설 등록
     @PostMapping("/register")
-    public ResponseEntity<Facility> registerFacility(@RequestBody FacilityRequestDto facilityRequestDto) {
+    public ResponseEntity<FacilityResponseDto> registerFacility(@RequestBody FacilityRequestDto facilityRequestDto) {
         Facility newFacility = facilityService.registerFacility(facilityRequestDto);
         FacilityResponseDto responseDto = FacilityResponseDto.from(newFacility);
 
         // 성공 시, 상태 코드 201과 생성된 facility 정보 반환
-        return ResponseEntity.status(HttpStatus.CREATED).body(newFacility);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
 }

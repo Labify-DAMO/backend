@@ -35,12 +35,20 @@ public class FacilityService {
         facility.setType(dto.getType());
         facility.setName(dto.getName());
         facility.setAddress(dto.getAddress());
-        // 서버에서 랜덤 코드 생성
-        String generatedCode = generateFacilityCode();
-        facility.setFacilityCode(generatedCode);
+        // 서버에서 랜덤 코드 생성해서 저장
+        facility.setFacilityCode(generateUniqueFacilityCode());
         facility.setManager(manager);
 
         return facilityRepository.save(facility);
+    }
+
+    // 유니크한 코드가 나올 때까지 코드를 재생성하는 메서드
+    private String generateUniqueFacilityCode() {
+        String code;
+        do {
+            code = generateFacilityCode();
+        } while (facilityRepository.existsByFacilityCode(code)); // DB에 코드가 존재하는 동안 반복
+        return code;
     }
 
     // 6자리의 영문 대문자+숫자 조합 코드를 생성
