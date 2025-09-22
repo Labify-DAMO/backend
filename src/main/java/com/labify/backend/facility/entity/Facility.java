@@ -25,6 +25,6 @@ public class Facility {
     private String address;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "managerId")
     private User manager;
 }
