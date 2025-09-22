@@ -1,6 +1,5 @@
 package com.labify.backend.user.entity;
 
-import com.labify.backend.user.entity.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -23,7 +22,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -31,6 +29,7 @@ public class User {
 
     private String affiliation;  // 소속
 
+    @Column(nullable = false)
     private String status;
 
     private LocalDateTime lastLoginAt;
