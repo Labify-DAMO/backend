@@ -27,3 +27,9 @@ spring:
           timeout: 5000
           writetimeout: 5000
         auth-code-expiration-millis: 1800000  # 30 * 60 * 1000 == 30분 (이메일 인증 코드 만료 시간)
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: 900000          # 15분
+  refresh-expiration: 604800000      # 7일
+  issuer: labify-backend             # 토큰 발급 주체

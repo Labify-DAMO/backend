@@ -1,8 +1,6 @@
 package com.labify.backend.auth.controller;
 
-import com.labify.backend.auth.dto.EmailRequest;
-import com.labify.backend.auth.dto.SignupRequest;
-import com.labify.backend.auth.dto.VerifyCodeRequest;
+import com.labify.backend.auth.dto.*;
 import com.labify.backend.auth.service.AuthService;
 import com.labify.backend.auth.service.MailService;
 import jakarta.mail.MessagingException;
@@ -53,9 +51,24 @@ public class AuthController {
                 : ResponseEntity.badRequest().body("유효하지 않거나 만료/시도초과된 코드입니다.");
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-//        authService.login(request);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = authService.login(request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest request) {
+        LoginResponse response = authService.refresh(request.getRefreshToken());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.ok("로그아웃 성공");
+    }
 
 }
