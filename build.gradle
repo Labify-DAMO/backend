@@ -33,6 +33,16 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
+	// 이메일 인증용 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// 로그인 관련 라이브러리 추가
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-jackson:0.12.5'
+	implementation 'commons-codec:commons-codec:1.16.0'
+
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'
 
