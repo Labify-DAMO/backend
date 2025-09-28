@@ -1,4 +1,4 @@
-package com.labify.backend.relation.dto;
+package com.labify.backend.facility.relation.dto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package com.labify.backend.relation.entity;
+package com.labify.backend.facility.relation.entity;
 
 import com.labify.backend.facility.entity.Facility;
 import jakarta.persistence.*;

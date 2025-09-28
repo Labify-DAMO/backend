@@ -1,16 +1,13 @@
-package com.labify.backend.relation.controller;
+package com.labify.backend.facility.relation.controller;
 
-import com.labify.backend.relation.dto.RelationshipRequestDto;
-import com.labify.backend.relation.dto.RelationshipResponseDto;
-import com.labify.backend.relation.entity.Relationship;
-import com.labify.backend.relation.service.RelationshipService;
+import com.labify.backend.facility.relation.dto.RelationshipRequestDto;
+import com.labify.backend.facility.relation.dto.RelationshipResponseDto;
+import com.labify.backend.facility.relation.entity.Relationship;
+import com.labify.backend.facility.relation.service.RelationshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/relation")
@@ -25,5 +22,12 @@ public class RelationshipController {
         Relationship newRelationship = relationshipService.createRelationship(requestDto);
         RelationshipResponseDto responseDto = RelationshipResponseDto.from(newRelationship);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    // [DELETE] /relation/delete/{relationshipId}
+    @DeleteMapping("/delete/{relationshipId}")
+    public ResponseEntity<Void> deleteRelationship(@PathVariable Long relationshipId) {
+        relationshipService.deleteRelationship(relationshipId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -37,6 +37,7 @@ public class User {
     private boolean agreeTerms; // 약관 동의
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     private LocalDateTime lastLoginAt;
