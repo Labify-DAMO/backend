@@ -1,6 +1,6 @@
-package com.labify.backend.relation.dto;
+package com.labify.backend.facility.relation.dto;
 
-import com.labify.backend.relation.entity.Relationship;
+import com.labify.backend.facility.relation.entity.Relationship;
 import lombok.Getter;
 
 @Getter
