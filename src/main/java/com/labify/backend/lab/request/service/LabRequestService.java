@@ -49,7 +49,7 @@ public class LabRequestService {
         LabRequest request = labRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("실험실을 찾을 수 없습니다"));
 
-        if (request.getStatus() != RequestStatus.PENDING) {
+        if (!request.getStatus().equals(RequestStatus.PENDING)) {
             throw new IllegalStateException("이미 처리된 요청입니다.");
         }
 
@@ -73,6 +73,6 @@ public class LabRequestService {
         }
 
         request.setStatus(RequestStatus.REJECTED);
-        return labRequestRepository.save(request);
+        return request;
     }
 }
