@@ -38,10 +38,11 @@ public class SecurityConfig {
                 // HTTP 요청에 대한 접근 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 아래 경로로 오는 요청은 인증 없이 모두 허용
-                        .requestMatchers("/facilities/*", "/labs/*", "/relation/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/facilities/*", "/labs/*", "/relation/**").permitAll()
+//                        .requestMatchers("/api/auth/**").permitAll()
                         // 그 외 나머지 모든 요청은 인증을 요구
-                        .anyRequest().authenticated())
+//                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
