@@ -1,0 +1,41 @@
+package com.labify.backend.inviterequest.controller;
+
+import com.labify.backend.inviterequest.dto.InviteRequestCreateDto;
+import com.labify.backend.inviterequest.dto.InviteRequestResponseDto;
+import com.labify.backend.inviterequest.entity.InviteRequest;
+import com.labify.backend.inviterequest.service.InviteRequestService;
+import com.labify.backend.userfacilityrelation.dto.UserFacilityRelationResponseDto;
+import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/facilities/request")
+@RequiredArgsConstructor
+public class InviteRequestController {
+
+    private final InviteRequestService inviteRequestService;
+
+    // [POST] /facilities/request
+    @PostMapping
+    public ResponseEntity<InviteRequestResponseDto> createInviteRequest(@RequestBody InviteRequestCreateDto requestDto) {
+        InviteRequest newRequest = inviteRequestService.createInviteRequest(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(InviteRequestResponseDto.from(newRequest));
+    }
+
+    // [PATCH] /facilities/request/{requestId}/confirm
+    @PatchMapping("/{requestId}/confirm")
+    public ResponseEntity<UserFacilityRelationResponseDto> confirmInviteRequest(@PathVariable Long requestId) {
+        UserFacilityRelation relation = inviteRequestService.confirmInviteRequest(requestId);
+        return ResponseEntity.ok(UserFacilityRelationResponseDto.from(relation));
+    }
+
+    // [PATCH] /facilities/request/{requestId}/reject
+    @PatchMapping("/{requestId}/reject")
+    public ResponseEntity<InviteRequestResponseDto> rejectInviteRequest(@PathVariable Long requestId) {
+        InviteRequest request = inviteRequestService.rejectInviteRequest(requestId);
+        return ResponseEntity.ok(InviteRequestResponseDto.from(request));
+    }
+}
