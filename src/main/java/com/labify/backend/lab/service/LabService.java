@@ -3,6 +3,7 @@ package com.labify.backend.lab.service;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.lab.dto.LabRequestDto;
+import com.labify.backend.lab.dto.LabResponseDto;
 import com.labify.backend.lab.dto.LabUpdateRequestDto;
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.lab.repository.LabRepository;
@@ -11,6 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자를 자동으로 만듦
@@ -48,4 +52,14 @@ public class LabService {
 
         return existingLab;
     }
+
+    // 특정 사용자가 속한 모든 실험실 반환
+    @Transactional(readOnly = true)
+    public List<LabResponseDto> findMyLabs(Long userId) {
+        List<Lab> labs = labRepository.findLabsByUserId(userId);
+        return labs.stream()
+                .map(LabResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
 }

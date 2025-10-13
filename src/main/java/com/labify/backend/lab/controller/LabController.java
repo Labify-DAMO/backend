@@ -5,10 +5,14 @@ import com.labify.backend.lab.dto.LabResponseDto;
 import com.labify.backend.lab.dto.LabUpdateRequestDto;
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.lab.service.LabService;
+import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/labs")
@@ -33,5 +37,13 @@ public class LabController {
         Lab updateLab = labService.updateLab(labId, requestDto);
         LabResponseDto responseDto = LabResponseDto.from(updateLab);
         return ResponseEntity.ok(responseDto);
+    }
+    
+    // [GET] /labs 내가 소속된 모든 실험실 조회
+    @GetMapping
+    public ResponseEntity<List<LabResponseDto>> findMyLabs(@AuthenticationPrincipal User user) {
+        // @AuthenticationPrincipal로 받은 User 객체에서 ID를 사용합니다.
+        List<LabResponseDto> labs = labService.findMyLabs(user.getUserId());
+        return ResponseEntity.ok(labs);
     }
 }
