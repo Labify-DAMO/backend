@@ -4,6 +4,7 @@ import com.labify.backend.lab.request.entity.LabRequest;
 import com.labify.backend.notification.entity.Notification;
 import com.labify.backend.notification.entity.NotificationType;
 import com.labify.backend.notification.repository.NotificationRepository;
+import com.labify.backend.pickup.entity.Pickup;
 import com.labify.backend.pickup.request.entity.PickupRequest;
 import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,19 @@ public class NotificationService {
     }
 
     // 수거 완료 시 알림
+    public void sendPickupCompletedNotification(User recipient, Pickup pickup) {
+        Notification notification = Notification.builder()
+                .recipient(recipient)
+                .type(NotificationType.PICKUP_COMPLETED)
+                .referenceId(pickup.getId())
+                .title("폐기물 수거가 완료되었습니다")
+                .message("요청하신 폐기물 수거가 완료되었습니다.\n처리 일시: "
+                        + pickup.getProcessedAt())
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+    }
 
 }
