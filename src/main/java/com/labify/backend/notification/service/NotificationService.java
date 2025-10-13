@@ -18,7 +18,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    // 실험실 개설 요청 알림
+    // 연구소 개설 요청 알림
     public void sendLabRequestNotification(User recipient, LabRequest labRequest) {
         Notification notification = Notification.builder()
                 .recipient(recipient)

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("api/user")
+@RequestMapping("/user")
 public class UserController {
 
     // 내 정보 조회
