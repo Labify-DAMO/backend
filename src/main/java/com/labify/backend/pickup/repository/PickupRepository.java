@@ -21,4 +21,7 @@ public interface PickupRepository extends JpaRepository<Pickup, Long> {
 
     // 3. requestDate를 기준으로 Pickup 목록을 찾는 쿼리
     // 아직 구현 X
+
+    // 4. PickupRequest ID를 통해 연관된 Pickup을 찾는 쿼리
+    Optional<Pickup> findByPickupRequestId(Long pickupRequestId);
 }

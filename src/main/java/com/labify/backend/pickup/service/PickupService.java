@@ -83,6 +83,7 @@ public class PickupService {
     }
 
     // 전체 수거 처리 이력 조회
+    @Transactional(readOnly = true)
     public List<PickupSummaryDto> getPickupHistory() {
         // processedAt 필드를 기준으로 내림차순(최신순)으로 모든 Pickup 데이터를 정렬하여 조회
         List<Pickup> pickups = pickupRepository.findAll(Sort.by(Sort.Direction.DESC, "processedAt"));
