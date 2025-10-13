@@ -2,7 +2,7 @@ package com.labify.backend.pickup.request.entity;
 
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.pickup.entity.Pickup;
-import com.labify.backend.pickup.request.item.entity.PickupRequestItem;
+import com.labify.backend.pickup.request.entity.PickupRequestItem;
 import com.labify.backend.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,11 +1,15 @@
 package com.labify.backend.pickup.request.controller;
 
 import com.labify.backend.pickup.request.dto.PickupRequestDetailDto;
+import com.labify.backend.pickup.request.dto.PickupRequestDto;
+import com.labify.backend.pickup.request.dto.PickupRequestResponseDto;
 import com.labify.backend.pickup.request.dto.PickupRequestSummaryDto;
+import com.labify.backend.pickup.request.entity.PickupRequest;
 import com.labify.backend.pickup.request.entity.PickupRequestStatus;
 import com.labify.backend.pickup.request.service.PickupRequestService;
 import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +22,18 @@ import java.util.List;
 public class PickupRequestController {
 
     private final PickupRequestService pickupRequestService;
+
+    // [POST] /pickup-requests 수거 요청 생성 API + 알림
+    @PostMapping("/requests")
+    public ResponseEntity<PickupRequestResponseDto> createPickupRequest(
+            @RequestBody PickupRequestDto dto) {
+
+        PickupRequest savedRequest = pickupRequestService.createPickupRequest(dto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(PickupRequestResponseDto.from(savedRequest));
+    }
 
     // [GET] /pickup-requests 또는 /pickup-requests?status=CANCELED 내 수거 요청 모두 조회
     @GetMapping
@@ -42,4 +58,5 @@ public class PickupRequestController {
         PickupRequestSummaryDto summaryDto = pickupRequestService.cancelPickupRequestById(requestId);
         return ResponseEntity.ok(summaryDto);
     }
+
 }

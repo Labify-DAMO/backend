@@ -1,6 +1,8 @@
 package com.labify.backend.lab.request.service;
 
 import com.labify.backend.facility.entity.Facility;
+import com.labify.backend.facility.relation.entity.Relationship;
+import com.labify.backend.facility.relation.repository.RelationshipRepository;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.lab.repository.LabRepository;
@@ -9,6 +11,7 @@ import com.labify.backend.lab.request.dto.LabRequestResponseDto;
 import com.labify.backend.lab.request.entity.LabRequest;
 import com.labify.backend.lab.request.entity.RequestStatus;
 import com.labify.backend.lab.request.repository.LabRequestRepository;
+import com.labify.backend.notification.service.NotificationService;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,7 +28,11 @@ public class LabRequestService {
     private final FacilityRepository facilityRepository;
     private final UserRepository userRepository;
     private final LabRepository labRepository;
+    private final RelationshipRepository relationshipRepository;
 
+    private final NotificationService notificationService;
+
+    // 실험실 개설 요청 + 알림
     @Transactional
     public LabRequest createLabRequest(LabRequestCreateDto dto) {
         Facility facility = facilityRepository.findById(dto.getFacilityId())
@@ -41,7 +48,23 @@ public class LabRequestService {
         labRequest.setStatus(RequestStatus.PENDING); // 최초 상태는 PENDING
         labRequest.setCreatedAt(LocalDateTime.now());
 
-        return labRequestRepository.save(labRequest);
+        LabRequest saved = labRequestRepository.save(labRequest);
+
+        // Relationship 통해 수거업체 찾기
+        Relationship relationship = relationshipRepository.findByLabFacility(facility)
+                .orElseThrow(() -> new IllegalStateException("이 연구소와 연결된 수거업체를 찾을 수 없습니다."));
+
+        Facility pickupFacility = relationship.getPickupFacility();
+        User pickupManager = pickupFacility.getManager();
+
+        if (pickupManager == null) {
+            throw new IllegalStateException("수거업체에 매니저가 설정되어 있지 않습니다.");
+        }
+
+        // 수거업체 매니저에게 알림 전송
+        notificationService.sendLabRequestNotification(pickupManager, saved);
+
+        return saved;
     }
 
     @Transactional
