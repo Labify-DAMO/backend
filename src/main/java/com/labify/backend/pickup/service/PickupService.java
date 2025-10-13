@@ -1,6 +1,7 @@
 package com.labify.backend.pickup.service;
 
 import com.labify.backend.disposal.entity.DisposalItem;
+import com.labify.backend.notification.service.NotificationService;
 import com.labify.backend.pickup.dto.PickupSummaryDto;
 import com.labify.backend.pickup.dto.ScanRequestDto;
 import com.labify.backend.pickup.dto.ScanResponseDto;
@@ -35,6 +36,7 @@ public class PickupService {
     private final UserRepository userRepository;
     private final PickupRepository pickupRepository;
     private final QRScanLogRepository qrScanLogRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public ScanResponseDto processScan(ScanRequestDto dto) {
@@ -71,7 +73,11 @@ public class PickupService {
         pickup.setProcessedAt(LocalDateTime.now());
         pickup.setStatus(COMPLETED);
 
-        // 8. DTO 반환
+        // 8. 알림 전송 (요청자에게 수거 완료 알림)
+        User requester = pickup.getPickupRequest().getRequester();
+        notificationService.sendPickupCompletedNotification(requester, pickup);
+
+        // 9. DTO 반환
         return new ScanResponseDto(item.getId(), item.getStatus().toString(), pickup.getProcessedAt());
     }
 

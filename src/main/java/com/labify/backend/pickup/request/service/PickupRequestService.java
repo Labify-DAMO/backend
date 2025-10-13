@@ -14,6 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.labify.backend.disposal.entity.DisposalItem;
+import com.labify.backend.disposal.repository.DisposalItemRepository;
+import com.labify.backend.facility.entity.Facility;
+import com.labify.backend.facility.relation.entity.Relationship;
+import com.labify.backend.facility.relation.repository.RelationshipRepository;
+import com.labify.backend.lab.entity.Lab;
+import com.labify.backend.lab.repository.LabRepository;
+import com.labify.backend.notification.service.NotificationService;
+import com.labify.backend.pickup.entity.Pickup;
+
+import com.labify.backend.pickup.request.dto.PickupRequestDto;
+import com.labify.backend.pickup.request.entity.PickupRequestItem;
+import com.labify.backend.pickup.request.repository.PickupRequestItemRepository;
+import com.labify.backend.user.entity.User;
+import com.labify.backend.user.repository.UserRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +39,70 @@ public class PickupRequestService {
 
     private final PickupRequestRepository pickupRequestRepository;
     private final PickupRepository pickupRepository;
+    private final LabRepository labRepository;
+    private final UserRepository userRepository;
+    private final DisposalItemRepository disposalItemRepository;
+    private final PickupRequestItemRepository pickupRequestItemRepository;
+    private final RelationshipRepository relationshipRepository;
+    private final NotificationService notificationService;
+
+    @Transactional
+    public PickupRequest createPickupRequest(PickupRequestDto dto) {
+        // 실험실 & 요청자 조회
+        Lab lab = labRepository.findById(dto.getLabId())
+                .orElseThrow(() -> new EntityNotFoundException("Lab not found"));
+
+        User requester = userRepository.findById(dto.getRequesterId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // PickupRequest 생성
+        PickupRequest pickupRequest = new PickupRequest();
+        pickupRequest.setLab(lab);
+        pickupRequest.setRequester(requester);
+        pickupRequest.setRequestDate(dto.getRequestDate());
+        pickupRequest.setStatus(PickupRequestStatus.REQUESTED);
+
+        pickupRequest = pickupRequestRepository.save(pickupRequest);
+
+        // PickupRequestItem 생성 (요청된 폐기물 목록)
+        List<PickupRequestItem> items = new ArrayList<>();
+        for (Long disposalId : dto.getDisposalItemIds()) {
+            DisposalItem disposalItem = disposalItemRepository.findById(disposalId)
+                    .orElseThrow(() -> new EntityNotFoundException("Disposal item not found: " + disposalId));
+
+            PickupRequestItem item = new PickupRequestItem();
+            item.setPickupRequest(pickupRequest);
+            item.setDisposalItem(disposalItem);
+            items.add(item);
+        }
+        pickupRequestItemRepository.saveAll(items);
+        pickupRequest.setItems(items);
+
+        // 연결된 수거업체 매니저 찾기 (collector로 지정)
+        Facility labFacility = lab.getFacility(); // Lab -> Facility
+        Relationship relationship = relationshipRepository.findByLabFacility(labFacility)
+                .orElseThrow(() -> new IllegalStateException("이 연구소와 연결된 수거업체가 없습니다."));
+
+        User pickupManager = relationship.getPickupFacility().getManager();
+        if (pickupManager == null) {
+            throw new IllegalStateException("수거업체에 매니저가 설정되지 않았습니다.");
+        }
+
+        // Pickup 생성 (요청과 1:1 연결)
+        Pickup pickup = new Pickup();
+        pickup.setPickupRequest(pickupRequest);
+        pickup.setCollector(pickupManager); // 아직 담당자 없음
+        pickup.setProcessedAt(LocalDateTime.now());
+        pickup.setStatus(PickupStatus.REQUESTED);
+        pickup = pickupRepository.save(pickup);
+
+        pickupRequest.setPickup(pickup); // 양방향 연관관계 설정
+
+        notificationService.sendPickupRequestNotification(pickupManager, pickupRequest);
+
+        return pickupRequest;
+    }
+
 
     // requesterId를 받아 해당 사용자의 요청을 모두 조회
     // params로 status 값이 들어올 경우, 필터링 진행 (없을 경우 모두 반환)

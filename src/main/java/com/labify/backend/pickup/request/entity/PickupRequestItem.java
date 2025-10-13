@@ -1,4 +1,4 @@
-package com.labify.backend.pickup.request.item.entity;
+package com.labify.backend.pickup.request.entity;
 
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.pickup.request.entity.PickupRequest;
