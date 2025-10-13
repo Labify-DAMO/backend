@@ -1,16 +1,14 @@
 package com.labify.backend.pickup.request.controller;
 
 import com.labify.backend.pickup.request.dto.PickupRequestDetailDto;
+import com.labify.backend.pickup.request.dto.PickupRequestSummaryDto;
 import com.labify.backend.pickup.request.entity.PickupRequestStatus;
 import com.labify.backend.pickup.request.service.PickupRequestService;
 import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +27,19 @@ public class PickupRequestController {
 
         List<PickupRequestDetailDto> requests = pickupRequestService.findMyPickupRequests(currentUserId, status);
         return ResponseEntity.ok(requests);
+    }
+
+    // [GET] /pickup-requests/{pickup_request_id} 특정 수거 요청 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<PickupRequestDetailDto> getPickupRequest(@PathVariable("id") Long requestId) {
+        PickupRequestDetailDto detailDto = pickupRequestService.findPickupRequestById(requestId);
+        return ResponseEntity.ok(detailDto);
+    }
+
+    // [PATCH] /pickup-requests/{pickup_request_id}/cancel 특정 수거 요청 취소
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<PickupRequestSummaryDto> cancelPickupRequest(@PathVariable("id") Long requestId) {
+        PickupRequestSummaryDto summaryDto = pickupRequestService.cancelPickupRequestById(requestId);
+        return ResponseEntity.ok(summaryDto);
     }
 }

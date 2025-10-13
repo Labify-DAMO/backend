@@ -1,6 +1,5 @@
 package com.labify.backend.pickup.request.service;
 
-import com.labify.backend.pickup.entity.Pickup;
 import com.labify.backend.pickup.entity.PickupStatus;
 import com.labify.backend.pickup.repository.PickupRepository;
 import com.labify.backend.pickup.request.dto.PickupRequestDetailDto;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
