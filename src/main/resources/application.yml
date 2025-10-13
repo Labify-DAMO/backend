@@ -11,6 +11,11 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  sql:
+    init:
+      mode: always
+      continue-on-error: true  # 에러 발생해도 계속 진행
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -33,3 +38,6 @@ jwt:
   access-expiration: 900000          # 15분
   refresh-expiration: 604800000      # 7일
   issuer: labify-backend             # 토큰 발급 주체
+
+ai-server:
+  url: ${AI_SERVER_URL} # FastAPI 서버 주소
