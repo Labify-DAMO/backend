@@ -99,6 +99,11 @@ public class AuthService {
             throw new IllegalStateException("이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.");
         }
 
+        // 탈퇴한 계정일 경우
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new IllegalStateException("탈퇴한 계정입니다. 다시 회원가입해주세요.");
+        }
+
         // accessToken 생성
         String accessToken = jwtProvider.generateAccessToken(user.getEmail());
 
