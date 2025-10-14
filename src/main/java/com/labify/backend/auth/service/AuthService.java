@@ -94,7 +94,10 @@ public class AuthService {
             new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
-        //unverified 상태일 경우 로그인 안되게 조건 넣기
+        // 이메일 인증되었는지 확인
+        if (user.getStatus() == UserStatus.UNVERIFIED) {
+            throw new IllegalStateException("이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.");
+        }
 
         // accessToken 생성
         String accessToken = jwtProvider.generateAccessToken(user.getEmail());
