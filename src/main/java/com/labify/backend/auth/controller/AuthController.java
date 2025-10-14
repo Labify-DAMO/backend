@@ -17,6 +17,7 @@ public class AuthController {
     private final AuthService authService;
     private final MailService mailService;
 
+    // [POST] /auth/signup
     // 회원가입
     // 고민: 지금 프레임 워크 보고 signup api를 누르면 메일 전송을 하게 만들었는데 추후 로직 분리가 필요할 수 있음
     @PostMapping("/signup")
@@ -31,6 +32,7 @@ public class AuthController {
         }
     }
 
+    // [POST] /auth/send-code
     // 코드 재전송
     @PostMapping("/send-code")
     public ResponseEntity<?> resendCode(@RequestBody EmailRequest request) {
@@ -43,6 +45,7 @@ public class AuthController {
         }
     }
 
+    // [POST] /auth/verify-code
     // 코드 검증
     @PostMapping("/verify-code")
     public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequest request) {
@@ -51,6 +54,7 @@ public class AuthController {
                 : ResponseEntity.badRequest().body("유효하지 않거나 만료/시도초과된 코드입니다.");
     }
 
+    // [POST] /auth/login
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
@@ -58,6 +62,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    // [POST] /auth/refresh
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest request) {
         LoginResponse response = authService.refresh(request.getRefreshToken());
@@ -65,6 +70,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    // [POST] /auth/logout
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
         authService.logout(request.getRefreshToken());
