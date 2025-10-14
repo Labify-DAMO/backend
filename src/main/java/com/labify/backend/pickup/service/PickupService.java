@@ -8,10 +8,10 @@ import com.labify.backend.pickup.dto.ScanResponseDto;
 import com.labify.backend.pickup.entity.Pickup;
 import com.labify.backend.pickup.entity.PickupStatus;
 import com.labify.backend.pickup.repository.PickupRepository;
-import com.labify.backend.qr.entity.QR;
-import com.labify.backend.qr.log.entity.QRScanLog;
-import com.labify.backend.qr.log.repository.QRScanLogRepository;
-import com.labify.backend.qr.repository.QRRepository;
+import com.labify.backend.qr.entity.Qr;
+import com.labify.backend.qr.log.entity.QrScanLog;
+import com.labify.backend.qr.log.repository.QrScanLogRepository;
+import com.labify.backend.qr.repository.QrRepository;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,16 +32,16 @@ import static com.labify.backend.pickup.entity.PickupStatus.COMPLETED;
 @RequiredArgsConstructor
 public class PickupService {
 
-    private final QRRepository qrRepository;
+    private final QrRepository qrRepository;
     private final UserRepository userRepository;
     private final PickupRepository pickupRepository;
-    private final QRScanLogRepository qrScanLogRepository;
+    private final QrScanLogRepository qrScanLogRepository;
     private final NotificationService notificationService;
 
     @Transactional
     public ScanResponseDto processScan(ScanRequestDto dto) {
         // 1. QR 코드로 QR 엔티티 조회
-        QR qr = qrRepository.findByCode(dto.getQrCode())
+        Qr qr = qrRepository.findByCode(dto.getQrCode())
                 .orElseThrow(() -> new EntityNotFoundException("유효하지 않은 QR 코드입니다."));
 
         // 2. 수거 담당자 엔티티 조회
@@ -49,7 +49,7 @@ public class PickupService {
                 .orElseThrow(() -> new EntityNotFoundException("수거 담당자를 찾을 수 없습니다."));
 
         // 3. 스캔 로그 기록
-        QRScanLog log = new QRScanLog();
+        QrScanLog log = new QrScanLog();
         log.setQr(qr);
         log.setScanner(collector);
         log.setSuccess(true);

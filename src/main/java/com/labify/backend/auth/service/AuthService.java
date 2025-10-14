@@ -94,6 +94,8 @@ public class AuthService {
             new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
+        //unverified 상태일 경우 로그인 안되게 조건 넣기
+
         // accessToken 생성
         String accessToken = jwtProvider.generateAccessToken(user.getEmail());
 
@@ -149,6 +151,7 @@ public class AuthService {
         return new LoginResponse(newAccessToken, refreshToken);
     }
 
+    // 로그아웃
     public void logout(String refreshToken) {
         String email = jwtProvider.parseToken(refreshToken).getSubject();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
