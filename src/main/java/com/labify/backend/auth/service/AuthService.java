@@ -173,4 +173,32 @@ public class AuthService {
 
     }
 
+    // 회원 탈퇴
+    @Transactional
+    public void withdraw(String refreshToken) {
+        // 토큰에서 사용자 정보 추출
+        String email = jwtProvider.parseToken(refreshToken).getSubject();
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 이미 탈퇴한 경우 방지
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new IllegalStateException("이미 탈퇴한 계정입니다.");
+        }
+
+        // 사용자 상태를 DELETED로 변경. db에서 삭제는 안함
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
+
+        // Refresh Token 만료시키기
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
+        for (RefreshToken token : tokens) {
+            token.setRevoked(true);
+        }
+        refreshTokenRepository.saveAll(tokens);
+    }
+
+
 }
