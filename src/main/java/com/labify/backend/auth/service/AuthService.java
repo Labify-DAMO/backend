@@ -97,12 +97,15 @@ public class AuthService {
                 latest.getAttemptCount() >= MAX_ATTEMPTS) return false;
 
         boolean match = latest.getCode().equals(inputCode);
-        latest.setAttemptCount(latest.getAttemptCount() + 1);
 
         if (!match) {
+            latest.setAttemptCount(latest.getAttemptCount() + 1);
+
             codeRepository.save(latest);
+            EmailVerificationCode check = codeRepository.findById(latest.getId()).orElseThrow();
             return false;
         }
+
         latest.setUsed(true);
         codeRepository.save(latest);
 
