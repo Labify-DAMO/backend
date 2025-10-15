@@ -98,16 +98,11 @@ public class AuthService {
 
         boolean match = latest.getCode().equals(inputCode);
 
-        System.out.println("1. match: " + match);
-        System.out.println("2. before increment: " + latest.getAttemptCount());
-
         if (!match) {
             latest.setAttemptCount(latest.getAttemptCount() + 1);
-            System.out.println("3. after increment (before save): " + latest.getAttemptCount());
 
             codeRepository.save(latest);
             EmailVerificationCode check = codeRepository.findById(latest.getId()).orElseThrow();
-            System.out.println("4. after save (DB): " + check.getAttemptCount());
             return false;
         }
 
