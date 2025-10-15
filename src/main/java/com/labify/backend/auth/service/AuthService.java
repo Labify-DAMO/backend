@@ -36,14 +36,39 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    // 회원가입(정보 입력)
+    // 회원가입
     public void signup(SignupRequest request) {
-        // 이메일 중복 체크
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        Optional<User> existingUserOpt = userRepository.findByEmail(request.getEmail());
+
+        if (existingUserOpt.isPresent()) {
+            User existingUser = existingUserOpt.get();
+
+            // 회원가입 정보는 입력했는데 이메일 인증은 안 한 사용자인 경우
+            if (existingUser.getStatus() == UserStatus.UNVERIFIED) {
+                throw new IllegalStateException("이미 가입된 이메일입니다. 이메일 인증을 완료하거나 인증 메일을 다시 요청하세요.");
+            }
+
+            // 탈퇴한 사용자인 경우
+            if (existingUser.getStatus() == UserStatus.DELETED) {
+                // 기존 계정을 재활성화!
+                existingUser.setName(request.getName());
+                existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
+                existingUser.setRole(request.getRole());
+                existingUser.setAffiliation(request.getAffiliation());
+                existingUser.setAgreeTerms(request.isAgreeTerms());
+                existingUser.setStatus(UserStatus.UNVERIFIED); // 다시 인증 필요하게 unverified 상태로 둠
+                existingUser.setProvider(Provider.LOCAL);
+                existingUser.setProviderId(null);
+                userRepository.save(existingUser);
+                return;
+            }
+
+            // db에 이미 ACTIVE 상태로 존재하는 경우: 회원가입 차단
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
-        User user = User.builder()
+        // 가입 안한 사용자면 새 계정 생성
+        User newUser = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -54,13 +79,14 @@ public class AuthService {
                 .provider(Provider.LOCAL)
                 .providerId(null)
                 .build();
-        userRepository.save(user);
+
+        userRepository.save(newUser);
     }
 
-    // 코드 입력 시도 가능 횟수
+    // 이메일 인증 코드 입력 시도 가능 횟수
     private static final int MAX_ATTEMPTS = 5;
 
-    // 코드 검증 로직
+    // 이메일 인증 코드 검증 로직
     @Transactional
     public boolean verify(String email, String inputCode) {
         EmailVerificationCode latest = codeRepository.findTopByEmailOrderByIdDesc(email).orElse(null);
@@ -94,7 +120,15 @@ public class AuthService {
             new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
-        //unverified 상태일 경우 로그인 안되게 조건 넣기
+        // 이메일 인증되었는지 확인
+        if (user.getStatus() == UserStatus.UNVERIFIED) {
+            throw new IllegalStateException("이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요.");
+        }
+
+        // 탈퇴한 계정일 경우
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new IllegalStateException("탈퇴한 계정입니다. 다시 회원가입해주세요.");
+        }
 
         // accessToken 생성
         String accessToken = jwtProvider.generateAccessToken(user.getEmail());
@@ -169,5 +203,33 @@ public class AuthService {
         refreshTokenRepository.save(refreshTokenDB);
 
     }
+
+    // 회원 탈퇴
+    @Transactional
+    public void withdraw(String refreshToken) {
+        // 토큰에서 사용자 정보 추출
+        String email = jwtProvider.parseToken(refreshToken).getSubject();
+
+        // 사용자 조회
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // 이미 탈퇴한 경우 방지
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new IllegalStateException("이미 탈퇴한 계정입니다.");
+        }
+
+        // 사용자 상태를 DELETED로 변경. db에서 삭제는 안함
+        user.setStatus(UserStatus.DELETED);
+        userRepository.save(user);
+
+        // Refresh Token 만료시키기
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByUserAndRevokedFalse(user);
+        for (RefreshToken token : tokens) {
+            token.setRevoked(true);
+        }
+        refreshTokenRepository.saveAll(tokens);
+    }
+
 
 }
