@@ -41,9 +41,8 @@ public class LabController {
     
     // [GET] /labs 내가 소속된 모든 실험실 조회
     @GetMapping
-    public ResponseEntity<List<LabResponseDto>> findMyLabs(@AuthenticationPrincipal User user) {
-        // @AuthenticationPrincipal로 받은 User 객체에서 ID를 사용합니다.
-        List<LabResponseDto> labs = labService.findMyLabs(user.getUserId());
-        return ResponseEntity.ok(labs);
+    public ResponseEntity<List<LabResponseDto>> findMyLabs(@AuthenticationPrincipal(expression = "user") User user) {
+        return ResponseEntity.ok(labService.findMyLabs(user.getUserId()));
     }
+
 }
