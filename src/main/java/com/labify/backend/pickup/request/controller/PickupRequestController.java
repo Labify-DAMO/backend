@@ -38,7 +38,8 @@ public class PickupRequestController {
     // [GET] /pickup-requests 또는 /pickup-requests?status=CANCELED 내 수거 요청 모두 조회
     @GetMapping
     public ResponseEntity<List<PickupRequestDetailDto>> findMyPickupRequests(
-            @AuthenticationPrincipal User user, @RequestParam(required = false) PickupRequestStatus status) {
+            @AuthenticationPrincipal(expression = "user") User user,
+            @RequestParam(required = false) PickupRequestStatus status) {
         Long currentUserId = user.getUserId();
 
         List<PickupRequestDetailDto> requests = pickupRequestService.findMyPickupRequests(currentUserId, status);

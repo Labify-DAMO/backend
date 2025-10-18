@@ -39,18 +39,42 @@ public class PickupService {
     private final NotificationService notificationService;
 
     @Transactional
-    public ScanResponseDto processScan(ScanRequestDto dto) {
+    public ScanResponseDto processScan(Long userId, ScanRequestDto dto) {
+
         // 1. QR 코드로 QR 엔티티 조회
-        Qr qr = qrRepository.findByCode(dto.getQrCode())
+        Qr qr = qrRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new EntityNotFoundException("유효하지 않은 QR 코드입니다."));
 
         // 2. 수거 담당자 엔티티 조회
-        User collector = userRepository.findById(dto.getCollectorId())
-                .orElseThrow(() -> new EntityNotFoundException("수거 담당자를 찾을 수 없습니다."));
+        Long collectorId = qrRepository.findCollectorIdByQrCode(qr.getCode())
+                .orElseThrow(() -> new EntityNotFoundException("해당 QR에 배정된 수거 담당자가 없습니다.")); // 담당자가 아직 배정되지 않은 경우 예외 처리
+
+        User collector = userRepository.findById(collectorId)
+                .orElseThrow(() -> new EntityNotFoundException("수거 담당자 정보를 찾을 수 없습니다."));
+
+        // 2-1. 수거 담당자와 사용자가 동일한지 조회
+        User loginUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보가 잘못 전달되었습니다."));
+
+        if (!collector.equals(loginUser)) { // 잘못된 사용자가 스캔할 경우
+            QrScanLog log = new QrScanLog();
+            log.setQr(qr);
+            log.setScannedAt(LocalDateTime.now());
+            log.setScanner(loginUser);
+            log.setSuccess(false);
+            qrScanLogRepository.save(log);  // 실패 로그 남기기
+            throw new IllegalArgumentException("수거 담당자가 아닙니다.");
+        };
+
+        // 2-2. 이미 수거 처리된 상태인지 체크 (qr_scan_log 테이블에 값이 있는지 확인)
+        if (qrScanLogRepository.existsByQrAndIsSuccess(qr, true)) {
+            throw new IllegalStateException("이미 수거 처리된 폐기물입니다.");
+        }
 
         // 3. 스캔 로그 기록
         QrScanLog log = new QrScanLog();
         log.setQr(qr);
+        log.setScannedAt(LocalDateTime.now());
         log.setScanner(collector);
         log.setSuccess(true);
         qrScanLogRepository.save(log);

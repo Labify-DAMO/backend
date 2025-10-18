@@ -24,8 +24,10 @@ public class PickupController {
 
     // [POST] /pickups/scan
     @PostMapping("/scan")
-    public ResponseEntity<ScanResponseDto> scanQrCode(@RequestBody ScanRequestDto requestDto) {
-        ScanResponseDto responseDto = pickupService.processScan(requestDto);
+    public ResponseEntity<ScanResponseDto> scanQrCode(
+            @AuthenticationPrincipal(expression = "user") User user,
+            @RequestBody ScanRequestDto requestDto) {
+        ScanResponseDto responseDto = pickupService.processScan(user.getUserId(), requestDto);
         return ResponseEntity.ok(responseDto);
     }
 

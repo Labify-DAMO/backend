@@ -5,6 +5,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ScanRequestDto {
-    private String qrCode;
-    private Long collectorId;
+    private String code;
 }
