@@ -12,27 +12,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/facilities/request")
+@RequestMapping("/facilities/requests")
 @RequiredArgsConstructor
 public class InviteRequestController {
 
     private final InviteRequestService inviteRequestService;
 
-    // [POST] /facilities/request
+    // [POST] /facilities/requests
     @PostMapping
     public ResponseEntity<InviteRequestResponseDto> createInviteRequest(@RequestBody InviteRequestCreateDto requestDto) {
         InviteRequest newRequest = inviteRequestService.createInviteRequest(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(InviteRequestResponseDto.from(newRequest));
     }
 
-    // [PATCH] /facilities/request/{requestId}/confirm
+    // [PATCH] /facilities/requests/{requestId}/confirm
     @PatchMapping("/{requestId}/confirm")
     public ResponseEntity<UserFacilityRelationResponseDto> confirmInviteRequest(@PathVariable Long requestId) {
         UserFacilityRelation relation = inviteRequestService.confirmInviteRequest(requestId);
         return ResponseEntity.ok(UserFacilityRelationResponseDto.from(relation));
     }
 
-    // [PATCH] /facilities/request/{requestId}/reject
+    // [PATCH] /facilities/requests/{requestId}/reject
     @PatchMapping("/{requestId}/reject")
     public ResponseEntity<InviteRequestResponseDto> rejectInviteRequest(@PathVariable Long requestId) {
         InviteRequest request = inviteRequestService.rejectInviteRequest(requestId);

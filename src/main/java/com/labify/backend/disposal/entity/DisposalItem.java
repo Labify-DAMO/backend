@@ -22,8 +22,8 @@ public class DisposalItem {
     @JoinColumn(name = "lab_id", nullable = false)
     private Lab lab;
 
-    // 1:1 관계
-    @OneToOne(fetch = FetchType.LAZY)
+    // N:1 관계
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "waste_type_id", nullable = false)
     private WasteType wasteType;
 
