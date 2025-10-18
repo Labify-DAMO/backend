@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -120,7 +119,7 @@ public class AuthService {
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
         // 이메일 인증되었는지 확인

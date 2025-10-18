@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(name = "qr_scan_log")
 public class QrScanLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
