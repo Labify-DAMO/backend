@@ -81,8 +81,8 @@ public class PickupService {
         return new ScanResponseDto(item.getId(), item.getStatus().toString(), pickup.getProcessedAt());
     }
 
-    public List<PickupSummaryDto> getPickupsForDate(LocalDate date) {
-        List<Pickup> pickups = pickupRepository.findPickupsByRequestDate(date);
+    public List<PickupSummaryDto> getPickupsForDate(LocalDate date, Long userId) {
+        List<Pickup> pickups = pickupRepository.findPickupsByDateAndUser(date, userId);
         return pickups.stream()
                 .map(PickupSummaryDto::new)
                 .collect(Collectors.toList());
@@ -90,9 +90,9 @@ public class PickupService {
 
     // 전체 수거 처리 이력 조회
     @Transactional(readOnly = true)
-    public List<PickupSummaryDto> getPickupHistory() {
+    public List<PickupSummaryDto> getPickupHistory(Long userId) {
         // processedAt 필드를 기준으로 내림차순(최신순)으로 모든 Pickup 데이터를 정렬하여 조회
-        List<Pickup> pickups = pickupRepository.findAll(Sort.by(Sort.Direction.DESC, "processedAt"));
+        List<Pickup> pickups = pickupRepository.findAllByCollectorUserIdOrderByProcessedAtDesc(userId);
 
         return pickups.stream()
                 .map(PickupSummaryDto::new)
