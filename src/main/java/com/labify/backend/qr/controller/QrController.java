@@ -17,7 +17,7 @@ public class QrController {
     private final QrService qrService;
 
     // [POST] /qr
-    // QR 코드 생성
+    // QR 생성
     @PostMapping
     public ResponseEntity<byte[]> generateQrAndReturnImage(@RequestBody QrRequestDto dto)
             throws IOException, WriterException {
@@ -29,6 +29,16 @@ public class QrController {
                 .body(qrImage);
     }
 
-    // [GET] /qr
-    // QR 코드 조회
+    // [GET] /qr/{disposalItemId}/image
+    // QR 이미지 조회
+    @GetMapping("/{disposalItemId}/image")
+    public ResponseEntity<byte[]> getQrImageByDisposalItem(@PathVariable Long disposalItemId)
+            throws IOException, WriterException {
+
+        byte[] qrImage = qrService.getQrImageByDisposalItem(disposalItemId);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "image/png") // .contentType(MediaType.IMAGE_PNG) 가 나을수도
+                .body(qrImage);
+    }
 }

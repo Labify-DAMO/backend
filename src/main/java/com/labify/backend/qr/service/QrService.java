@@ -23,13 +23,13 @@ public class QrService {
     private final QrRepository qrRepository;
     private final DisposalItemRepository disposalItemRepository;
 
+    // QR 생성 로직
     @Transactional
     public byte[] generateQrAndReturnImage(QrRequestDto dto) throws IOException, WriterException {
         // 폐기물 조회
         DisposalItem disposalItem = disposalItemRepository.findById(dto.getDisposalItemId())
                 .orElseThrow(() -> new EntityNotFoundException("폐기물을 찾을 수 없습니다."));
 
-        // 이미 QR이 있는지 확인
         if (qrRepository.existsByDisposalItem(disposalItem)) {
             throw new IllegalStateException("이 폐기물에는 이미 QR이 생성되었습니다.");
         }
@@ -38,7 +38,6 @@ public class QrService {
         String code = "QR-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
                 + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        // QR 엔티티 저장
         Qr qr = new Qr();
         qr.setDisposalItem(disposalItem);
         qr.setCode(code);
@@ -46,6 +45,17 @@ public class QrService {
         qrRepository.save(qr);
 
         // QR 이미지(PNG) 생성
+        return QrGenerator.generateQrImage(qr.getCode(), 300, 300);
+    }
+
+    // QR 이미지 조회 로직
+    @Transactional
+    public byte[] getQrImageByDisposalItem(Long disposalItemId) throws IOException, WriterException {
+        // QR 조회
+        Qr qr = qrRepository.findByDisposalItemId(disposalItemId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 폐기물의 QR을 찾을 수 없습니다."));
+
+        // QR 이미지 생성
         return QrGenerator.generateQrImage(qr.getCode(), 300, 300);
     }
 }
