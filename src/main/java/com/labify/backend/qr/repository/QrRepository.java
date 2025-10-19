@@ -12,15 +12,11 @@ import java.util.Optional;
 @Repository
 public interface QrRepository extends JpaRepository<Qr,Long> {
 
-    /**
-     * 코드를 통해 QR 데이터 조회
-     */
     Optional<Qr> findByCode(String code);
 
-    /**
-     * 존재하는 폐기물인지 체크
-     */
     boolean existsByDisposalItem(DisposalItem disposalItem);
+
+    Optional<Qr> findByDisposalItemId(Long disposalItemId);
 
     /**
      * QR 코드를 통해 연결된 Pickup의 collector ID를 조회
