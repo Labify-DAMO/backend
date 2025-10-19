@@ -16,6 +16,8 @@ public interface QrRepository extends JpaRepository<Qr,Long> {
 
     boolean existsByDisposalItem(DisposalItem disposalItem);
 
+    Optional<Qr> findByDisposalItemId(Long disposalItemId);
+
     /**
      * QR 코드를 통해 연결된 Pickup의 collector ID를 조회
      */

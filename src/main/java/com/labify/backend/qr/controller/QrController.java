@@ -1,16 +1,13 @@
 package com.labify.backend.qr.controller;
 
+import com.google.zxing.WriterException;
 import com.labify.backend.qr.dto.QrRequestDto;
-import com.labify.backend.qr.dto.QrResponseDto;
-import com.labify.backend.qr.entity.Qr;
 import com.labify.backend.qr.service.QrService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/qr")
@@ -20,10 +17,18 @@ public class QrController {
     private final QrService qrService;
 
     // [POST] /qr
-    // qr 코드 조회
+    // QR 코드 생성
     @PostMapping
-    public ResponseEntity<QrResponseDto> createQr(@RequestBody QrRequestDto dto) {
-        Qr qr = qrService.createQr(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(QrResponseDto.from(qr));
+    public ResponseEntity<byte[]> generateQrAndReturnImage(@RequestBody QrRequestDto dto)
+            throws IOException, WriterException {
+
+        byte[] qrImage = qrService.generateQrAndReturnImage(dto);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", "image/png")
+                .body(qrImage);
     }
+
+    // [GET] /qr
+    // QR 코드 조회
 }
