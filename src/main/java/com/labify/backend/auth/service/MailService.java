@@ -30,8 +30,8 @@ public class MailService {
 
     // 랜덤 6자리 코드 생성
     public static String createCode() {
-        int n = secureRandom.nextInt(1_000_000); // 0 ~ 999999
-        return String.format("%06d", n);
+        int n = secureRandom.nextInt(900_000) + 100_000; // 100000 ~ 999999
+        return String.valueOf(n);
     }
 
     // 생성 코드를 EmailVerificationCode 테이블에 저장 및 메일 발송
