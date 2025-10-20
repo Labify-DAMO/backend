@@ -19,9 +19,6 @@ public class WasteType {
     @JoinColumn(name = "category_id", nullable = false)
     private WasteCategory wasteCategory;
 
-    @Column(unique = true)
-    private String code;
-
     @Column(nullable = false)
     private String name;
 
