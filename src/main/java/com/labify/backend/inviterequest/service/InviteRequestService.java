@@ -28,8 +28,8 @@ public class InviteRequestService {
     private final UserFacilityRelationRepository userFacilityRelationRepository;
 
     @Transactional
-    public InviteRequest createInviteRequest(InviteRequestCreateDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+    public InviteRequest createInviteRequest(Long userId, InviteRequestCreateDto dto) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Facility facility = facilityRepository.findByFacilityCode(dto.getFacilityCode())
                 .orElseThrow(() -> new EntityNotFoundException("Facility not found"));

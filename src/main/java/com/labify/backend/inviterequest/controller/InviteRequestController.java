@@ -4,11 +4,13 @@ import com.labify.backend.inviterequest.dto.InviteRequestCreateDto;
 import com.labify.backend.inviterequest.dto.InviteRequestResponseDto;
 import com.labify.backend.inviterequest.entity.InviteRequest;
 import com.labify.backend.inviterequest.service.InviteRequestService;
+import com.labify.backend.user.entity.User;
 import com.labify.backend.userfacilityrelation.dto.UserFacilityRelationResponseDto;
 import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +22,10 @@ public class InviteRequestController {
 
     // [POST] /facilities/requests
     @PostMapping
-    public ResponseEntity<InviteRequestResponseDto> createInviteRequest(@RequestBody InviteRequestCreateDto requestDto) {
-        InviteRequest newRequest = inviteRequestService.createInviteRequest(requestDto);
+    public ResponseEntity<InviteRequestResponseDto> createInviteRequest(
+            @AuthenticationPrincipal(expression = "user") User user,
+            @RequestBody InviteRequestCreateDto requestDto) {
+        InviteRequest newRequest = inviteRequestService.createInviteRequest(user.getUserId(), requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(InviteRequestResponseDto.from(newRequest));
     }
 

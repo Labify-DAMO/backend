@@ -6,6 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class InviteRequestCreateDto {
-    private Long userId;
     private String facilityCode;
 }
