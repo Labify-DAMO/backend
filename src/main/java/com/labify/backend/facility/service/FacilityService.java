@@ -1,5 +1,6 @@
 package com.labify.backend.facility.service;
 
+import com.labify.backend.facility.dto.FacilityInfoResponseDto;
 import com.labify.backend.facility.dto.FacilityRequestDto;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
@@ -59,5 +60,11 @@ public class FacilityService {
         return IntStream.range(0, 6)
                 .mapToObj(i -> String.valueOf(CHARACTERS.charAt(random.nextInt(CHARACTERS.length()))))
                 .collect(Collectors.joining());
+    }
+
+    @Transactional
+    public Facility getFacilityByCode(String code) {
+        return facilityRepository.findByFacilityCode(code)
+                .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
     }
 }
