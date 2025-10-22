@@ -9,5 +9,4 @@ public class FacilityRequestDto {
     private FacilityType type;
     private String name;
     private String address;
-    private Long managerId;
 }

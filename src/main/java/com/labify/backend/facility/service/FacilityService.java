@@ -1,6 +1,5 @@
 package com.labify.backend.facility.service;
 
-import com.labify.backend.facility.dto.FacilityInfoResponseDto;
 import com.labify.backend.facility.dto.FacilityRequestDto;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
@@ -26,10 +25,11 @@ public class FacilityService {
     }
 
     @Transactional
-    public Facility registerFacility(FacilityRequestDto dto) {
-        // manager_id를 기반으로 User 엔티티 조회
-        User manager = userRepository.findById(dto.getManagerId())
-                .orElseThrow(() -> new EntityNotFoundException("사용자 ID를 찾을 수 없습니다."));
+    public Facility registerFacility(User manager, FacilityRequestDto dto) {
+        // 컨트롤러에서 받은 manager 객체를 그대로 사용! (DB 재조회 불필요)
+        if (manager == null) {
+            throw new IllegalStateException("관리자 정보를 찾을 수 없습니다.");
+        }
 
         Facility facility = new Facility();
         // 사용자에게 받은 정보 이용
@@ -66,5 +66,11 @@ public class FacilityService {
     public Facility getFacilityByCode(String code) {
         return facilityRepository.findByFacilityCode(code)
                 .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
+    }
+
+    @Transactional
+    public Facility getMyFacility(User manager) {
+        return facilityRepository.findByManager(manager)
+                .orElseThrow(() -> new EntityNotFoundException("사용자가 소속된 시설을 찾을 수 없습니다."));
     }
 }
