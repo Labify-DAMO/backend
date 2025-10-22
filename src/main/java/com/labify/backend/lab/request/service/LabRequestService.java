@@ -14,6 +14,8 @@ import com.labify.backend.lab.request.repository.LabRequestRepository;
 import com.labify.backend.notification.service.NotificationService;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
+import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
+import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class LabRequestService {
 
     private final LabRequestRepository labRequestRepository;
     private final FacilityRepository facilityRepository;
-    private final UserRepository userRepository;
+    private final UserFacilityRelationRepository userFacilityRelationRepository;
     private final LabRepository labRepository;
     private final RelationshipRepository relationshipRepository;
 
@@ -35,11 +37,11 @@ public class LabRequestService {
     // 실험실 개설 요청 + 알림
     @Transactional
     public LabRequest createLabRequest(User manager, LabRequestCreateDto dto) {
-        Facility facility = facilityRepository.findById(dto.getFacilityId())
-                .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
         if (manager == null) {
             throw new IllegalStateException("관리자 정보를 찾을 수 없습니다.");
         }
+        UserFacilityRelation relation = userFacilityRelationRepository.findByUser(manager);
+        Facility facility = relation.getFacility();
 
         LabRequest labRequest = new LabRequest();
         labRequest.setFacility(facility);
