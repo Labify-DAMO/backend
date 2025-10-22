@@ -34,15 +34,16 @@ public class LabRequestService {
 
     // 실험실 개설 요청 + 알림
     @Transactional
-    public LabRequest createLabRequest(LabRequestCreateDto dto) {
+    public LabRequest createLabRequest(User manager, LabRequestCreateDto dto) {
         Facility facility = facilityRepository.findById(dto.getFacilityId())
                 .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
-        User manager = userRepository.findById(dto.getManagerId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (manager == null) {
+            throw new IllegalStateException("관리자 정보를 찾을 수 없습니다.");
+        }
 
         LabRequest labRequest = new LabRequest();
         labRequest.setFacility(facility);
-        labRequest.setManager(manager); // 요청자?
+        labRequest.setManager(manager); // 요청자
         labRequest.setName(dto.getName());
         labRequest.setLocation(dto.getLocation());
         labRequest.setStatus(RequestStatus.PENDING); // 최초 상태는 PENDING

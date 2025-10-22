@@ -5,7 +5,10 @@ import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
+import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
+import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,15 +17,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
-    private final UserRepository userRepository;
-
-    public FacilityService(FacilityRepository facilityRepository, UserRepository userRepository) {
-        this.facilityRepository = facilityRepository;
-        this.userRepository = userRepository;
-    }
+    private final UserFacilityRelationRepository userFacilityRelationRepository;
 
     @Transactional
     public Facility registerFacility(User manager, FacilityRequestDto dto) {
@@ -40,7 +39,16 @@ public class FacilityService {
         facility.setFacilityCode(generateUniqueFacilityCode());
         facility.setManager(manager);
 
-        return facilityRepository.save(facility);
+        facilityRepository.save(facility);
+
+        UserFacilityRelation relation = UserFacilityRelation.builder()
+                .facility(facility)
+                .user(manager)
+                .build();
+
+        userFacilityRelationRepository.save(relation);
+
+        return facility;
     }
 
     // 유니크한 코드가 나올 때까지 코드를 재생성하는 메서드

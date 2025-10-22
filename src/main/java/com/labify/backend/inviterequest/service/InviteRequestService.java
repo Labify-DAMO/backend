@@ -59,9 +59,10 @@ public class InviteRequestService {
 
         request.setStatus(InviteStatus.CONFIRMED);
 
-        UserFacilityRelation relation = new UserFacilityRelation();
-        relation.setUser(request.getUser());
-        relation.setFacility(request.getFacility());
+        UserFacilityRelation relation = UserFacilityRelation.builder()
+                .facility(request.getFacility())
+                .user(request.getUser())
+                .build();
 
         return userFacilityRelationRepository.save(relation);
     }
