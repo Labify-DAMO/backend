@@ -48,7 +48,7 @@ public class PickupController {
         return ResponseEntity.ok(pickups);
     }
 
-    // [GET] /pickup/today
+    // [GET] /pickups/today
     @GetMapping("/today")
     public ResponseEntity<List<PickupSummaryDto>> getTodaysPickups(
             @AuthenticationPrincipal(expression = "user") User user) {
@@ -57,7 +57,7 @@ public class PickupController {
         return ResponseEntity.ok(pickups);
     }
 
-    // [PATCH] /pickup/{pickupId}/status
+    // [PATCH] /pickups/{pickupId}/status
     @PatchMapping("/{pickupId}/status")
     public ResponseEntity<PickupSummaryDto> updatePickupStatus(
             @PathVariable Long pickupId,
