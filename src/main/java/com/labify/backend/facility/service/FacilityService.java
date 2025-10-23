@@ -5,7 +5,10 @@ import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
+import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
+import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,21 +17,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
-    private final UserRepository userRepository;
-
-    public FacilityService(FacilityRepository facilityRepository, UserRepository userRepository) {
-        this.facilityRepository = facilityRepository;
-        this.userRepository = userRepository;
-    }
+    private final UserFacilityRelationRepository userFacilityRelationRepository;
 
     @Transactional
-    public Facility registerFacility(FacilityRequestDto dto) {
-        // manager_id를 기반으로 User 엔티티 조회
-        User manager = userRepository.findById(dto.getManagerId())
-                .orElseThrow(() -> new EntityNotFoundException("사용자 ID를 찾을 수 없습니다."));
+    public Facility registerFacility(User manager, FacilityRequestDto dto) {
+        // 컨트롤러에서 받은 manager 객체를 그대로 사용! (DB 재조회 불필요)
+        if (manager == null) {
+            throw new IllegalStateException("관리자 정보를 찾을 수 없습니다.");
+        }
 
         Facility facility = new Facility();
         // 사용자에게 받은 정보 이용
@@ -39,7 +39,16 @@ public class FacilityService {
         facility.setFacilityCode(generateUniqueFacilityCode());
         facility.setManager(manager);
 
-        return facilityRepository.save(facility);
+        facilityRepository.save(facility);
+
+        UserFacilityRelation relation = UserFacilityRelation.builder()
+                .facility(facility)
+                .user(manager)
+                .build();
+
+        userFacilityRelationRepository.save(relation);
+
+        return facility;
     }
 
     // 유니크한 코드가 나올 때까지 코드를 재생성하는 메서드
@@ -59,5 +68,17 @@ public class FacilityService {
         return IntStream.range(0, 6)
                 .mapToObj(i -> String.valueOf(CHARACTERS.charAt(random.nextInt(CHARACTERS.length()))))
                 .collect(Collectors.joining());
+    }
+
+    @Transactional
+    public Facility getFacilityByCode(String code) {
+        return facilityRepository.findByFacilityCode(code)
+                .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
+    }
+
+    @Transactional
+    public Facility getMyFacility(User manager) {
+        return facilityRepository.findByManager(manager)
+                .orElseThrow(() -> new EntityNotFoundException("사용자가 소속된 시설을 찾을 수 없습니다."));
     }
 }

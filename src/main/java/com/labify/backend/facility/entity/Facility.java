@@ -15,6 +15,7 @@ public class Facility {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long facilityId;
 
+    @Column(name = "facility_code", nullable = false, unique = true)
     private String facilityCode;
 
     @Enumerated(EnumType.STRING)

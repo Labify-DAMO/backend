@@ -28,8 +28,8 @@ public class InviteRequestService {
     private final UserFacilityRelationRepository userFacilityRelationRepository;
 
     @Transactional
-    public InviteRequest createInviteRequest(InviteRequestCreateDto dto) {
-        User user = userRepository.findById(dto.getUserId())
+    public InviteRequest createInviteRequest(Long userId, InviteRequestCreateDto dto) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Facility facility = facilityRepository.findByFacilityCode(dto.getFacilityCode())
                 .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
@@ -59,9 +59,10 @@ public class InviteRequestService {
 
         request.setStatus(InviteStatus.CONFIRMED);
 
-        UserFacilityRelation relation = new UserFacilityRelation();
-        relation.setUser(request.getUser());
-        relation.setFacility(request.getFacility());
+        UserFacilityRelation relation = UserFacilityRelation.builder()
+                .facility(request.getFacility())
+                .user(request.getUser())
+                .build();
 
         return userFacilityRelationRepository.save(relation);
     }

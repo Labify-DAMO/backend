@@ -6,9 +6,11 @@ import com.labify.backend.lab.request.dto.LabRequestCreateDto;
 import com.labify.backend.lab.request.dto.LabRequestResponseDto;
 import com.labify.backend.lab.request.entity.LabRequest;
 import com.labify.backend.lab.request.service.LabRequestService;
+import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +22,10 @@ public class LabRequestController {
 
     // [POST] /labs/requests
     @PostMapping
-    public ResponseEntity<LabRequestResponseDto> createLabRequest(@RequestBody LabRequestCreateDto requestDto) {
-        LabRequest newRequest = labRequestService.createLabRequest(requestDto);
+    public ResponseEntity<LabRequestResponseDto> createLabRequest(
+            @AuthenticationPrincipal(expression = "user") User user,
+            @RequestBody LabRequestCreateDto requestDto) {
+        LabRequest newRequest = labRequestService.createLabRequest(user, requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(LabRequestResponseDto.from(newRequest));
     }
 
