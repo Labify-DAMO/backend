@@ -3,16 +3,14 @@ package com.labify.backend.disposal.controller;
 import com.labify.backend.auth.service.CustomUserDetails;
 import com.labify.backend.disposal.dto.DisposalCreateRequestDto;
 import com.labify.backend.disposal.dto.DisposalResponseDto;
+import com.labify.backend.disposal.dto.DisposalUpdateRequestDto;
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.disposal.service.DisposalItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/diposals")
@@ -29,5 +27,14 @@ public class DisposalItemController {
     ) {
         DisposalItem item = disposalItemService.registerDisposal(dto, userDetails.getUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(DisposalResponseDto.from(item));
+    }
+
+    // [PATCH] /disposals/{disposalItemId}
+    @PatchMapping("/{disposalItemId}")
+    public ResponseEntity<DisposalItem> patchDisposalItem(
+            @PathVariable Long itemId,
+            @RequestBody DisposalUpdateRequestDto request) {
+        DisposalItem updated = disposalItemService.patchDisposalItem(itemId, request);
+        return ResponseEntity.ok(updated);
     }
 }

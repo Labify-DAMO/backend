@@ -1,6 +1,7 @@
 package com.labify.backend.disposal.service;
 
 import com.labify.backend.disposal.dto.DisposalCreateRequestDto;
+import com.labify.backend.disposal.dto.DisposalUpdateRequestDto;
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.disposal.entity.DisposalStatus;
 import com.labify.backend.disposal.repository.DisposalItemRepository;
@@ -45,5 +46,38 @@ public class DisposalItemService {
 
     }
 
+    // 폐기물 등록 정보 수정 로직
+    @Transactional
+    public DisposalItem patchDisposalItem(Long itemId, DisposalUpdateRequestDto request) {
+        DisposalItem item = disposalItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("DisposalItem not found"));
 
+        // null이 아닌 필드만 업데이트
+        if (request.getWasteTypeId() != null) {
+            item.setWasteType(wasteTypeRepository.findById(request.getWasteTypeId())
+                    .orElseThrow(() -> new IllegalArgumentException("WasteType not found")));
+        }
+
+        if (request.getWeight() != null) {
+            item.setWeight(request.getWeight());
+        }
+
+        if (request.getUnit() != null) {
+            item.setUnit(request.getUnit());
+        }
+
+        if (request.getMemo() != null) {
+            item.setMemo(request.getMemo());
+        }
+
+        if (request.getStatus() != null) {
+            item.setStatus(request.getStatus());
+        }
+
+        if (request.getAvailableUntil() != null) {
+            item.setAvailableUntil(request.getAvailableUntil());
+        }
+
+        return item;
+    }
 }
