@@ -84,5 +84,8 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
-
+    // 읽지 않은 알림 개수
+    public long getUnreadCount(User user) {
+        return notificationRepository.countByRecipientAndIsRead(user, false);
+    }
 }

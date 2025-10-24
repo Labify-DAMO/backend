@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/notifications")
@@ -31,5 +32,15 @@ public class NotifiationController {
         List<NotificationResponseDto> notifications =
                 notificationService.getNotificationsByUser(userDetails.getUser(), isRead);
         return ResponseEntity.ok(notifications);
+    }
+
+    // [GET] /notifications/unread-count
+    // 읽지 않은 알림 개수
+    @GetMapping("/unread-count")
+    public ResponseEntity<Map<String, Long>> getUnreadCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        long count = notificationService.getUnreadCount(userDetails.getUser());
+        return ResponseEntity.ok(Map.of("unreadCount", count));
     }
 }
