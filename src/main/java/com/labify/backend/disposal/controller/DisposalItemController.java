@@ -31,10 +31,10 @@ public class DisposalItemController {
 
     // [PATCH] /disposals/{disposalItemId}
     @PatchMapping("/{disposalItemId}")
-    public ResponseEntity<DisposalItem> patchDisposalItem(
+    public ResponseEntity<DisposalResponseDto> patchDisposalItem(
             @PathVariable Long disposalItemId,
             @RequestBody DisposalUpdateRequestDto request) {
         DisposalItem updated = disposalItemService.patchDisposalItem(disposalItemId, request);
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(DisposalResponseDto.from(updated));
     }
 }
