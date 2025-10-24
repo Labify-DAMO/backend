@@ -53,20 +53,17 @@ public class LabRequestService {
 
         LabRequest saved = labRequestRepository.save(labRequest);
 
-        // Relationship 통해 수거업체 찾기
-        Relationship relationship = relationshipRepository.findByLabFacility(facility)
-                .orElseThrow(() -> new IllegalStateException("이 연구소와 연결된 수거업체를 찾을 수 없습니다."));
+        // 수거업체 연결이 있는 경우에만 알림 전송
+        relationshipRepository.findByLabFacility(facility)
+                .ifPresent(relationship -> {
+                    Facility pickupFacility = relationship.getPickupFacility();
+                    User pickupManager = pickupFacility.getManager();
 
-        Facility pickupFacility = relationship.getPickupFacility();
-        User pickupManager = pickupFacility.getManager();
-
-        if (pickupManager == null) {
-            throw new IllegalStateException("수거업체에 매니저가 설정되어 있지 않습니다.");
-        }
-
-        // 수거업체 매니저에게 알림 전송
-        notificationService.sendLabRequestNotification(pickupManager, saved);
-
+                    if (pickupManager != null) {
+                        // 수거업체 매니저에게 알림 전송
+                        notificationService.sendLabRequestNotification(pickupManager, saved);
+                    }
+                });
         return saved;
     }
 
