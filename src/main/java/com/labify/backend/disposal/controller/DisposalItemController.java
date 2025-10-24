@@ -13,12 +13,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/diposals")
+@RequestMapping("/disposals")
 @RequiredArgsConstructor
 public class DisposalItemController {
-    private DisposalItemService disposalItemService;
+    private final DisposalItemService disposalItemService;
 
-    // [POST] /diposals
+    // [POST] /disposals
     // 폐기물 등록
     @PostMapping
     public ResponseEntity<DisposalResponseDto> registerDisposal(
@@ -32,9 +32,9 @@ public class DisposalItemController {
     // [PATCH] /disposals/{disposalItemId}
     @PatchMapping("/{disposalItemId}")
     public ResponseEntity<DisposalItem> patchDisposalItem(
-            @PathVariable Long itemId,
+            @PathVariable Long disposalItemId,
             @RequestBody DisposalUpdateRequestDto request) {
-        DisposalItem updated = disposalItemService.patchDisposalItem(itemId, request);
+        DisposalItem updated = disposalItemService.patchDisposalItem(disposalItemId, request);
         return ResponseEntity.ok(updated);
     }
 }

@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class DisposalItemService {
-    private LabRepository labRepository;
-    private WasteTypeRepository wasteTypeRepository;
-    private DisposalItemRepository disposalItemRepository;
+    private final LabRepository labRepository;
+    private final WasteTypeRepository wasteTypeRepository;
+    private final DisposalItemRepository disposalItemRepository;
 
     // 폐기물 등록 로직
     @Transactional
