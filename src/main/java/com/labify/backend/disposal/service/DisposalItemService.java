@@ -27,8 +27,11 @@ public class DisposalItemService {
     // 폐기물 등록 로직
     @Transactional
     public DisposalItem registerDisposal(DisposalCreateRequestDto dto, User createdBy) {
-        Lab lab = labRepository.findById(dto.getLabId()).orElseThrow(() -> new EntityNotFoundException("Lab not found"));
-        WasteType wasteType = wasteTypeRepository.findById(dto.getWasteTypeId()).orElseThrow(() -> new EntityNotFoundException("Waste not found"));
+        Lab lab = labRepository.findById(dto.getLabId())
+                .orElseThrow(() -> new EntityNotFoundException("Lab not found"));
+
+        WasteType wasteType = wasteTypeRepository.findByName(dto.getWasteTypeName())
+                .orElseThrow(() -> new EntityNotFoundException("WasteType not found: " + dto.getWasteTypeName()));
 
         DisposalItem disposalItem = new DisposalItem();
 

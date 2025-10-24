@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class DisposalCreateRequestDto {
-    private Long labId; // 사용자가 반드시 한 연구실에만 속하면 로그인 정보에서 받아와도 되는데 그런다는 보장이 없어서 일단 requestDto에 둠
-    private Long wasteTypeId;
+    private Long labId;
+
+    private String wasteTypeName; // AI에서 받은 fine 값
     private double weight;
     private String unit;
     private String memo;
