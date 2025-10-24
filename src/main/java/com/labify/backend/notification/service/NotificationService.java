@@ -1,6 +1,7 @@
 package com.labify.backend.notification.service;
 
 import com.labify.backend.lab.request.entity.LabRequest;
+import com.labify.backend.notification.dto.NotificationResponseDto;
 import com.labify.backend.notification.entity.Notification;
 import com.labify.backend.notification.entity.NotificationType;
 import com.labify.backend.notification.repository.NotificationRepository;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,5 +67,22 @@ public class NotificationService {
 
         notificationRepository.save(notification);
     }
+
+    // 사용자별 알림 조회
+    public List<NotificationResponseDto> getNotificationsByUser(User recipient, Boolean isRead) {
+        List<Notification> notifications;
+        if (isRead == null) {
+            // 전체 조회
+            notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(recipient);
+        } else {
+            // 읽음/안읽음 필터링
+            notifications = notificationRepository.findByRecipientAndIsReadOrderByCreatedAtDesc(recipient, isRead);
+        }
+
+        return notifications.stream()
+                .map(NotificationResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
 
 }
