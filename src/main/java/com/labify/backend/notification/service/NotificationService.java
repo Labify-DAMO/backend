@@ -8,6 +8,8 @@ import com.labify.backend.notification.repository.NotificationRepository;
 import com.labify.backend.pickup.entity.Pickup;
 import com.labify.backend.pickup.request.entity.PickupRequest;
 import com.labify.backend.user.entity.User;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -87,5 +89,17 @@ public class NotificationService {
     // 읽지 않은 알림 개수
     public long getUnreadCount(User user) {
         return notificationRepository.countByRecipientAndIsRead(user, false);
+    }
+
+    // 알림 읽음 처리
+    @Transactional
+    public NotificationResponseDto markAsRead(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+
+        return NotificationResponseDto.from(notification);
     }
 }
