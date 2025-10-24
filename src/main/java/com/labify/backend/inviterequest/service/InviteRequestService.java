@@ -1,14 +1,15 @@
 package com.labify.backend.inviterequest.service;
 
+import com.labify.backend.common.response.GeneralException;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.inviterequest.dto.InviteRequestCreateDto;
-import com.labify.backend.inviterequest.dto.InviteRequestResponseDto;
 import com.labify.backend.inviterequest.entity.InviteRequest;
 import com.labify.backend.inviterequest.entity.InviteStatus;
 import com.labify.backend.inviterequest.repository.InviteRequestRepository;
-import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
-import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
+import com.labify.backend.inviterequest.exception.InviteRequestErrorCode;
+import com.labify.backend.inviterequest.response.InviteRequestException;
+import com.labify.backend.user.dto.UserFacilityResponseDto;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,18 +26,17 @@ public class InviteRequestService {
     private final InviteRequestRepository inviteRequestRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
-    private final UserFacilityRelationRepository userFacilityRelationRepository;
 
     @Transactional
     public InviteRequest createInviteRequest(Long userId, InviteRequestCreateDto dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Facility facility = facilityRepository.findByFacilityCode(dto.getFacilityCode())
-                .orElseThrow(() -> new EntityNotFoundException("Facility not found"));
+                .orElseThrow(() -> new InviteRequestException(InviteRequestErrorCode.INVALID_FACILITY_CODE));
 
         // 동일한 사용자가 동일한 시설에 보낸 요청이 있는지 확인
         if (inviteRequestRepository.existsByUserAndFacility(user, facility)) {
-            throw new IllegalStateException("이미 해당 시설에 가입을 요청했습니다.");
+            throw new InviteRequestException(InviteRequestErrorCode.ALREADY_REQUESTED);
         }
 
         InviteRequest inviteRequest = new InviteRequest();
@@ -49,22 +49,21 @@ public class InviteRequestService {
     }
 
     @Transactional
-    public UserFacilityRelation confirmInviteRequest(Long requestId) {
+    public UserFacilityResponseDto confirmInviteRequest(Long requestId) {
         InviteRequest request =  inviteRequestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException("Request not found"));
+                .orElseThrow(() -> new InviteRequestException(InviteRequestErrorCode.REQUEST_NOT_FOUND));
 
         if (!request.getStatus().equals(InviteStatus.PENDING)) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
+            throw new InviteRequestException(InviteRequestErrorCode.ALREADY_REQUESTED);
         }
 
         request.setStatus(InviteStatus.CONFIRMED);
 
-        UserFacilityRelation relation = UserFacilityRelation.builder()
-                .facility(request.getFacility())
-                .user(request.getUser())
-                .build();
+        User user = request.getUser();
+        Facility facility = request.getFacility();
+        user.setFacility(facility);
 
-        return userFacilityRelationRepository.save(relation);
+        return UserFacilityResponseDto.from(request);
     }
 
     @Transactional
@@ -73,7 +72,9 @@ public class InviteRequestService {
                 .orElseThrow(() -> new EntityNotFoundException("Request not found"));
 
         if (!request.getStatus().equals(InviteStatus.PENDING)) {
-            throw new IllegalStateException("이미 처리된 요청입니다.");
+            throw new GeneralException(
+                    InviteRequestErrorCode.ALREADY_PROCESSED
+            );
         }
 
         request.setStatus(InviteStatus.REJECTED);

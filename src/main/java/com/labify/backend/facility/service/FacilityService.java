@@ -1,12 +1,13 @@
 package com.labify.backend.facility.service;
 
+import com.labify.backend.common.response.GeneralException;
+import com.labify.backend.facility.dto.FacilityInfoResponseDto;
 import com.labify.backend.facility.dto.FacilityRequestDto;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
+import com.labify.backend.facility.exception.FacilityErrorCode;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
-import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
-import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import java.util.stream.IntStream;
 public class FacilityService {
 
     private final FacilityRepository facilityRepository;
-    private final UserFacilityRelationRepository userFacilityRelationRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Facility registerFacility(User manager, FacilityRequestDto dto) {
@@ -41,12 +42,8 @@ public class FacilityService {
 
         facilityRepository.save(facility);
 
-        UserFacilityRelation relation = UserFacilityRelation.builder()
-                .facility(facility)
-                .user(manager)
-                .build();
-
-        userFacilityRelationRepository.save(relation);
+        manager.setFacility(facility);
+        userRepository.save(manager);
 
         return facility;
     }
@@ -77,8 +74,16 @@ public class FacilityService {
     }
 
     @Transactional
-    public Facility getMyFacility(User manager) {
-        return facilityRepository.findByManager(manager)
-                .orElseThrow(() -> new EntityNotFoundException("사용자가 소속된 시설을 찾을 수 없습니다."));
+    public FacilityInfoResponseDto getMyFacility(User authUser) {
+        // LazyInitializationException 방지: facility까지 같이 로드됨
+        User user = userRepository.findById(authUser.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Facility facility = user.getFacility();
+        if (facility == null) {
+            throw new GeneralException(FacilityErrorCode.FACILITY_NOT_FOUND);
+        }
+
+        return FacilityInfoResponseDto.from(facility);
     }
 }

@@ -4,9 +4,8 @@ import com.labify.backend.inviterequest.dto.InviteRequestCreateDto;
 import com.labify.backend.inviterequest.dto.InviteRequestResponseDto;
 import com.labify.backend.inviterequest.entity.InviteRequest;
 import com.labify.backend.inviterequest.service.InviteRequestService;
+import com.labify.backend.user.dto.UserFacilityResponseDto;
 import com.labify.backend.user.entity.User;
-import com.labify.backend.userfacilityrelation.dto.UserFacilityRelationResponseDto;
-import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +30,9 @@ public class InviteRequestController {
 
     // [PATCH] /facilities/requests/{requestId}/confirm
     @PatchMapping("/{requestId}/confirm")
-    public ResponseEntity<UserFacilityRelationResponseDto> confirmInviteRequest(@PathVariable Long requestId) {
-        UserFacilityRelation relation = inviteRequestService.confirmInviteRequest(requestId);
-        return ResponseEntity.ok(UserFacilityRelationResponseDto.from(relation));
+    public ResponseEntity<UserFacilityResponseDto> confirmInviteRequest(@PathVariable Long requestId) {
+        UserFacilityResponseDto response = inviteRequestService.confirmInviteRequest(requestId);
+        return ResponseEntity.ok(response);
     }
 
     // [PATCH] /facilities/requests/{requestId}/reject
