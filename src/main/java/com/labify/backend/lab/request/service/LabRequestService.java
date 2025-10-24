@@ -13,9 +13,6 @@ import com.labify.backend.lab.request.entity.RequestStatus;
 import com.labify.backend.lab.request.repository.LabRequestRepository;
 import com.labify.backend.notification.service.NotificationService;
 import com.labify.backend.user.entity.User;
-import com.labify.backend.user.repository.UserRepository;
-import com.labify.backend.userfacilityrelation.entity.UserFacilityRelation;
-import com.labify.backend.userfacilityrelation.repository.UserFacilityRelationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +25,6 @@ public class LabRequestService {
 
     private final LabRequestRepository labRequestRepository;
     private final FacilityRepository facilityRepository;
-    private final UserFacilityRelationRepository userFacilityRelationRepository;
     private final LabRepository labRepository;
     private final RelationshipRepository relationshipRepository;
 
@@ -36,16 +32,15 @@ public class LabRequestService {
 
     // 실험실 개설 요청 + 알림
     @Transactional
-    public LabRequest createLabRequest(User manager, LabRequestCreateDto dto) {
-        if (manager == null) {
-            throw new IllegalStateException("관리자 정보를 찾을 수 없습니다.");
+    public LabRequest createLabRequest(User user, LabRequestCreateDto dto) {
+        if (user == null) {
+            throw new IllegalStateException("요청자 정보를 찾을 수 없습니다.");
         }
-        UserFacilityRelation relation = userFacilityRelationRepository.findByUser(manager);
-        Facility facility = relation.getFacility();
+        Facility facility = user.getFacility();
 
         LabRequest labRequest = new LabRequest();
         labRequest.setFacility(facility);
-        labRequest.setManager(manager); // 요청자
+        labRequest.setManager(user); // 요청자
         labRequest.setName(dto.getName());
         labRequest.setLocation(dto.getLocation());
         labRequest.setStatus(RequestStatus.PENDING); // 최초 상태는 PENDING

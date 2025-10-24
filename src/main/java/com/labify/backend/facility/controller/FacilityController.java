@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/facilities")
 public class FacilityController {
@@ -42,7 +44,8 @@ public class FacilityController {
     @GetMapping
     public ResponseEntity<FacilityInfoResponseDto> getMyFacility(
             @AuthenticationPrincipal(expression = "user") User user) {
-        Facility facility = facilityService.getMyFacility(user);
-        return ResponseEntity.ok(FacilityInfoResponseDto.from(facility));
+
+        FacilityInfoResponseDto dto = facilityService.getMyFacility(user);
+        return ResponseEntity.ok(dto);
     }
 }

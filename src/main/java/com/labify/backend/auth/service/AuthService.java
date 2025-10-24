@@ -53,7 +53,6 @@ public class AuthService {
                 existingUser.setName(request.getName());
                 existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
                 existingUser.setRole(request.getRole());
-                existingUser.setAffiliation(request.getAffiliation());
                 existingUser.setAgreeTerms(request.isAgreeTerms());
                 existingUser.setStatus(UserStatus.UNVERIFIED); // 다시 인증 필요하게 unverified 상태로 둠
                 existingUser.setProvider(Provider.LOCAL);
@@ -72,7 +71,6 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
-                .affiliation(request.getAffiliation())
                 .agreeTerms(request.isAgreeTerms())
                 .status(UserStatus.UNVERIFIED)
                 .provider(Provider.LOCAL)

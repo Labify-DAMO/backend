@@ -1,4 +1,4 @@
-package com.labify.backend.user;
+package com.labify.backend.user.dto;
 
 import com.labify.backend.user.entity.Role;
 import lombok.AllArgsConstructor;
@@ -11,5 +11,4 @@ public class UserResponse {
     private String email;
     private String name;
     private Role role;
-    private String affiliation;  // 소속
 }

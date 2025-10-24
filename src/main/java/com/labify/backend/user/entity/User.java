@@ -1,5 +1,6 @@
 package com.labify.backend.user.entity;
 
+import com.labify.backend.facility.entity.Facility;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -32,13 +33,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String affiliation;  // 소속
-
     private boolean agreeTerms; // 약관 동의
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "facility_id")
+    private Facility facility;
 
     private LocalDateTime lastLoginAt;
 
