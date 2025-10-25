@@ -1,16 +1,21 @@
 package com.labify.backend.notification.service;
 
 import com.labify.backend.lab.request.entity.LabRequest;
+import com.labify.backend.notification.dto.NotificationResponseDto;
 import com.labify.backend.notification.entity.Notification;
 import com.labify.backend.notification.entity.NotificationType;
 import com.labify.backend.notification.repository.NotificationRepository;
 import com.labify.backend.pickup.entity.Pickup;
 import com.labify.backend.pickup.request.entity.PickupRequest;
 import com.labify.backend.user.entity.User;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,4 +70,45 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    // 사용자별 알림 조회
+    public List<NotificationResponseDto> getNotificationsByUser(User recipient, Boolean isRead) {
+        List<Notification> notifications;
+        if (isRead == null) {
+            // 전체 조회
+            notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(recipient);
+        } else {
+            // 읽음/안읽음 필터링
+            notifications = notificationRepository.findByRecipientAndIsReadOrderByCreatedAtDesc(recipient, isRead);
+        }
+
+        return notifications.stream()
+                .map(NotificationResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
+    // 읽지 않은 알림 개수
+    public long getUnreadCount(User user) {
+        return notificationRepository.countByRecipientAndIsRead(user, false);
+    }
+
+    // 알림 읽음 처리
+    @Transactional
+    public NotificationResponseDto markAsRead(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
+
+        notification.setRead(true);
+        notificationRepository.save(notification);
+
+        return NotificationResponseDto.from(notification);
+    }
+
+    // 알림 삭제
+    @Transactional
+    public void deleteNotification(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
+
+        notificationRepository.delete(notification);
+    }
 }
