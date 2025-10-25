@@ -102,4 +102,13 @@ public class NotificationService {
 
         return NotificationResponseDto.from(notification);
     }
+
+    // 알림 삭제
+    @Transactional
+    public void deleteNotification(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification not found"));
+
+        notificationRepository.delete(notification);
+    }
 }
