@@ -37,7 +37,6 @@ src
 │ │ │ └─request
 │ │ ├─qr
 │ │ ├─user
-│ │ ├─userfacilityrelation
 │ │ ├─waste
 │ │ └─BackendApplication.java
 │ └─resources
