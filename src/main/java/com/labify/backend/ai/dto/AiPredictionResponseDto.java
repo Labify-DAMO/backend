@@ -21,4 +21,6 @@ public class AiPredictionResponseDto {
 
     @JsonProperty("ocr_text")
     private String ocrText; // 검출된 텍스트
+
+    private String unit; // WasteType에서 조회한 단위
 }

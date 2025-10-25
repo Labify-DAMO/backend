@@ -1,6 +1,7 @@
 package com.labify.backend.ai.service;
 
 import com.labify.backend.ai.dto.AiPredictionResponseDto;
+import com.labify.backend.waste.repository.WasteTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class AiService {    // 중개자 역할의 클래스
 
     private final WebClient webClient;
+    private final WasteTypeRepository wasteTypeRepository;
 
     @Transactional
     public Mono<AiPredictionResponseDto> predictImage(MultipartFile file) throws IOException {
@@ -41,6 +43,21 @@ public class AiService {    // 중개자 역할의 클래스
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(body))
                 .retrieve() // 응답 받음
-                .bodyToMono(AiPredictionResponseDto.class); // 받은 JSON을 DTO로 변환
+                .bodyToMono(AiPredictionResponseDto.class) // 받은 JSON을 DTO로 변환
+                .flatMap(response -> {
+                    // AI 서버로부터 받은 fine 값으로 WasteType 조회
+                    if (response.getFine() != null && !response.getFine().isEmpty()) {
+                        return Mono.fromCallable(() ->
+                                wasteTypeRepository.findByName(response.getFine())
+                                        .map(wasteType -> {
+                                            response.setUnit(wasteType.getUnit());
+                                            return response;
+                                        })
+                                        .orElse(response) // WasteType을 찾지 못하면 unit 없이 반환
+                        );
+                    }
+                    return Mono.just(response);
+                });
+
     }
 }
