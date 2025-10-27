@@ -15,7 +15,5 @@ public class SignupRequest {
 
     private Role role;
 
-    private String affiliation;  // 소속
-
     private boolean agreeTerms; // 약관 동의
 }

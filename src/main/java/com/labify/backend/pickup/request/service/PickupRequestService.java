@@ -47,12 +47,12 @@ public class PickupRequestService {
     private final NotificationService notificationService;
 
     @Transactional
-    public PickupRequest createPickupRequest(PickupRequestDto dto) {
+    public PickupRequest createPickupRequest(PickupRequestDto dto, User requester) {
         // 실험실 & 요청자 조회
         Lab lab = labRepository.findById(dto.getLabId())
                 .orElseThrow(() -> new EntityNotFoundException("Lab not found"));
 
-        User requester = userRepository.findById(dto.getRequesterId())
+        requester = userRepository.findById(requester.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         // PickupRequest 생성

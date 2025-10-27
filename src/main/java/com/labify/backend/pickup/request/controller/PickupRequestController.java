@@ -1,5 +1,6 @@
 package com.labify.backend.pickup.request.controller;
 
+import com.labify.backend.auth.service.CustomUserDetails;
 import com.labify.backend.pickup.request.dto.PickupRequestDetailDto;
 import com.labify.backend.pickup.request.dto.PickupRequestDto;
 import com.labify.backend.pickup.request.dto.PickupRequestResponseDto;
@@ -26,9 +27,9 @@ public class PickupRequestController {
     // [POST] /pickup-requests 수거 요청 생성 API + 알림
     @PostMapping("/requests")
     public ResponseEntity<PickupRequestResponseDto> createPickupRequest(
-            @RequestBody PickupRequestDto dto) {
+            @RequestBody PickupRequestDto dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        PickupRequest savedRequest = pickupRequestService.createPickupRequest(dto);
+        PickupRequest savedRequest = pickupRequestService.createPickupRequest(dto, userDetails.getUser());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
