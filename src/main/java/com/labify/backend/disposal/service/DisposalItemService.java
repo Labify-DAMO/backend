@@ -1,6 +1,8 @@
 package com.labify.backend.disposal.service;
 
 import com.labify.backend.disposal.dto.DisposalCreateRequestDto;
+import com.labify.backend.disposal.dto.DisposalListResponseDto;
+import com.labify.backend.disposal.dto.DisposalResponseDto;
 import com.labify.backend.disposal.dto.DisposalUpdateRequestDto;
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.disposal.entity.DisposalStatus;
@@ -13,9 +15,12 @@ import com.labify.backend.waste.repository.WasteTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +87,22 @@ public class DisposalItemService {
         }
 
         return item;
+    }
+
+    // 폐기물 전체 조회 (또는 필터링 가능)
+    @Transactional
+    public DisposalListResponseDto getDisposalItemInfo(User user, DisposalStatus status, Pageable pageable) {
+        Page<DisposalItem> itemPage = disposalItemRepository.findDisposalItemsByStatus(user.getUserId(), status, pageable);
+
+        List<DisposalResponseDto> itemDtos = itemPage.getContent().stream()
+                .map(DisposalResponseDto::from)
+                .toList();
+
+        long totalCount = itemPage.getTotalElements();
+
+        return DisposalListResponseDto.builder()
+                .totalCount(totalCount)
+                .disposalItems(itemDtos)
+                .build();
     }
 }

@@ -2,6 +2,8 @@ package com.labify.backend.disposal.repository;
 
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.disposal.entity.DisposalStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +24,23 @@ public interface DisposalItemRepository extends JpaRepository<DisposalItem, Long
             "JOIN pri.pickupRequest pr " +
             "WHERE pr.pickup.id = :pickupId")
     List<DisposalStatus> findStatusesByPickupId(@Param("pickupId") Long pickupId);
+
+    // 내가 소속된 lab의 Disposal_item 조회
+    // 이때 Disposal_item 상태(status)에 따른 조회 (null 값 들어올 경우, 필터링 없이 조회)
+    @Query(
+            value = """
+            SELECT di FROM DisposalItem di
+            WHERE di.lab IN (SELECT l FROM Lab l WHERE l.facility = (SELECT u.facility FROM User u WHERE u.userId = :userId))
+            AND (:status IS NULL OR di.status = :status)
+            """,
+            countQuery = """
+            SELECT count(di) FROM DisposalItem di
+            WHERE di.lab IN (SELECT l FROM Lab l WHERE l.facility = (SELECT u.facility FROM User u WHERE u.userId = :userId))
+            AND (:status IS NULL OR di.status = :status)
+            """
+    )
+    Page<DisposalItem> findDisposalItemsByStatus(
+            @Param("userId") Long userId,
+            @Param("status") DisposalStatus status,
+            Pageable pageable);
 }
