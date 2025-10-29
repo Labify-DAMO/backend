@@ -3,8 +3,10 @@ package com.labify.backend.lab.request.controller;
 import com.labify.backend.lab.dto.LabResponseDto;
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.lab.request.dto.LabRequestCreateDto;
+import com.labify.backend.lab.request.dto.LabRequestListResponseDto;
 import com.labify.backend.lab.request.dto.LabRequestResponseDto;
 import com.labify.backend.lab.request.entity.LabRequest;
+import com.labify.backend.lab.request.entity.RequestStatus;
 import com.labify.backend.lab.request.service.LabRequestService;
 import com.labify.backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,19 @@ public class LabRequestController {
     public ResponseEntity<LabRequestResponseDto> rejectLabRequest(@PathVariable Long requestId) {
         LabRequest rejectedRequest = labRequestService.rejectLabRequest(requestId);
         return ResponseEntity.ok(LabRequestResponseDto.from(rejectedRequest));
+    }
+
+    // [GET] /labs/requests/me/{status}
+    @GetMapping("/me/{status}")
+    public ResponseEntity<LabRequestListResponseDto> getMyLabRequests(
+            @AuthenticationPrincipal(expression = "user") User user, RequestStatus status) {
+        return ResponseEntity.ok(labRequestService.getMyLabRequests(user, status));
+    }
+
+    // [GET] /labs/requests{status}
+    @GetMapping("{status}")
+    public ResponseEntity<LabRequestListResponseDto> getAllLabRequests(
+            @AuthenticationPrincipal(expression = "user") User user, RequestStatus status) {
+        return ResponseEntity.ok(labRequestService.getLabRequests(user, status));
     }
 }

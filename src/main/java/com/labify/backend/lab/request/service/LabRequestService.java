@@ -7,6 +7,8 @@ import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.lab.entity.Lab;
 import com.labify.backend.lab.repository.LabRepository;
 import com.labify.backend.lab.request.dto.LabRequestCreateDto;
+import com.labify.backend.lab.request.dto.LabRequestItemDto;
+import com.labify.backend.lab.request.dto.LabRequestListResponseDto;
 import com.labify.backend.lab.request.dto.LabRequestResponseDto;
 import com.labify.backend.lab.request.entity.LabRequest;
 import com.labify.backend.lab.request.entity.RequestStatus;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,5 +96,25 @@ public class LabRequestService {
 
         request.setStatus(RequestStatus.REJECTED);
         return request;
+    }
+
+    @Transactional
+    public LabRequestListResponseDto getMyLabRequests(User user, RequestStatus status) {
+        List<LabRequest> labRequests =
+                labRequestRepository.findLabRequestsForMyFacility(user.getUserId(), status);
+        List<LabRequestItemDto> requestDtos = labRequests.stream()
+                .map(LabRequestItemDto::from)
+                .collect(Collectors.toList());
+        return LabRequestListResponseDto.from(requestDtos);
+    }
+
+    @Transactional
+    public LabRequestListResponseDto getLabRequests(User user, RequestStatus status) {
+        List<LabRequest> labRequests =
+                labRequestRepository.findLabRequestsForFacilitiesIMange(user.getUserId(), status);
+        List<LabRequestItemDto> requestDtos = labRequests.stream()
+                .map(LabRequestItemDto::from)
+                .collect(Collectors.toList());
+        return LabRequestListResponseDto.from(requestDtos);
     }
 }
