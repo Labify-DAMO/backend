@@ -11,11 +11,6 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  sql:
-    init:
-      mode: always
-      continue-on-error: true  # 에러 발생해도 계속 진행
-
   mail:
     host: smtp.gmail.com
     port: 587
