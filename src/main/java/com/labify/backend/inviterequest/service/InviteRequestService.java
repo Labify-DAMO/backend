@@ -4,6 +4,7 @@ import com.labify.backend.common.response.GeneralException;
 import com.labify.backend.facility.entity.Facility;
 import com.labify.backend.facility.repository.FacilityRepository;
 import com.labify.backend.inviterequest.dto.InviteRequestCreateDto;
+import com.labify.backend.inviterequest.dto.InviteRequestListDto;
 import com.labify.backend.inviterequest.entity.InviteRequest;
 import com.labify.backend.inviterequest.entity.InviteStatus;
 import com.labify.backend.inviterequest.repository.InviteRequestRepository;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,17 @@ public class InviteRequestService {
     private final InviteRequestRepository inviteRequestRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
+
+    @Transactional
+    public List<InviteRequestListDto> findInviteRequestsForMyFacility(User user, InviteStatus status) {
+        List<InviteRequest> inviteRequests =
+                inviteRequestRepository.findInviteRequestsForMyFacility(user.getUserId(), status);
+
+        // InviteRequest 엔티티 리스트를 InviteRequestListDto 리스트로 변환
+        return inviteRequests.stream()
+                .map(InviteRequestListDto::from) // 각 엔티티를 DTO로 변환
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public InviteRequest createInviteRequest(Long userId, InviteRequestCreateDto dto) {
