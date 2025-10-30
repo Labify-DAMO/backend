@@ -113,7 +113,7 @@ gradlew bootRun
 ### 5️⃣ 서버 확인
 
 - 기본 주소: `http://localhost:8080`
-- API 테스트는 Postman 또는 Swagger UI를 사용하세요.
+- API 테스트는 Postman을 사용하세요.
 
 <br>
 
@@ -126,7 +126,7 @@ gradlew bootRun
         <a href="https://github.com/romdyfo"><img src="https://github.com/romdyfo.png" width="100px;" alt=""/></a>
         </td>
         <td align="center" width="150px">
-        <a href="https://github.com/romdyfo"><img src="https://github.com/romdyfo.png" width="100px;" alt=""/></a>
+        <a href="https://github.com/romdyfo"><img src="https://github.com/ownue.png" width="100px;" alt=""/></a>
         </td>
     </tr>
     <tr>
@@ -135,13 +135,12 @@ gradlew bootRun
         <a href="https://github.com/romdyfo"><b>김지희</b></a>
         </td>
         <td align="center">
-        <a href="https://github.com/romdyfo"><b>김지희</b></a>
+        <a href="https://github.com/ownue"><b>이은우</b></a>
         </td>
     </tr>
     <tr>
         <th>Position</th>
         <td align="center">
-            Tech Leader<br/>
             Backend<br/>
         </td>
         <td align="center">
@@ -151,6 +150,6 @@ gradlew bootRun
     <tr>
         <th>GitHub</th>
         <td align="center"><a href="https://github.com/romdyfo"><img src="http://img.shields.io/badge/romdyfo-green?style=social&logo=github"/></a></td>
-        <td align="center"><a href="https://github.com/romdyfo"><img src="http://img.shields.io/badge/romdyfo-green?style=social&logo=github"/></a></td>
+        <td align="center"><a href="https://github.com/ownue"><img src="http://img.shields.io/badge/ownue-green?style=social&logo=github"/></a></td>
     </tr>
 </table>
