@@ -85,20 +85,21 @@ public class PickupRequestService {
 
         User pickupManager = relationship.getPickupFacility().getManager();
         if (pickupManager == null) {
-            throw new IllegalStateException("수거업체에 매니저가 설정되지 않았습니다.");
+            throw new IllegalStateException("수거 담당자가 설정되지 않았습니다.");
         }
 
         // Pickup 생성 (요청과 1:1 연결)
         Pickup pickup = new Pickup();
         pickup.setPickupRequest(pickupRequest);
-        pickup.setCollector(pickupManager); // 아직 담당자 없음
+        pickup.setCollector(null);
         pickup.setProcessedAt(LocalDateTime.now());
         pickup.setStatus(PickupStatus.REQUESTED);
         pickup = pickupRepository.save(pickup);
 
         pickupRequest.setPickup(pickup); // 양방향 연관관계 설정
 
-        notificationService.sendPickupRequestNotification(pickupManager, pickupRequest);
+        // 수거 담당자가 정해지면 알림 발송
+//        notificationService.sendPickupRequestNotification(pickupManager, pickupRequest);
 
         return pickupRequest;
     }
