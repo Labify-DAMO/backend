@@ -6,4 +6,8 @@ import lombok.Setter;
 @Setter
 public class ScanRequestDto {
     private String code;
+
+    public ScanRequestDto(String code) {
+        this.code = code;
+    }
 }

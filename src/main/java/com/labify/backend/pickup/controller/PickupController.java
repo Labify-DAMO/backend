@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,8 +27,8 @@ public class PickupController {
     @PostMapping("/scan")
     public ResponseEntity<ScanResponseDto> scanQrCode(
             @AuthenticationPrincipal(expression = "user") User user,
-            @RequestBody ScanRequestDto requestDto) {
-        ScanResponseDto responseDto = pickupService.processScan(user.getUserId(), requestDto);
+            @RequestPart("file") MultipartFile file) {
+        ScanResponseDto responseDto = pickupService.processScanImage(user.getUserId(), file);
         return ResponseEntity.ok(responseDto);
     }
 
