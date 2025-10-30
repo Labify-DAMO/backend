@@ -1,9 +1,9 @@
 package com.labify.backend.pickup.service;
 
+import com.google.zxing.NotFoundException;
 import com.labify.backend.disposal.entity.DisposalItem;
 import com.labify.backend.disposal.entity.DisposalStatus;
 import com.labify.backend.disposal.repository.DisposalItemRepository;
-import com.labify.backend.lab.request.entity.RequestStatus;
 import com.labify.backend.notification.service.NotificationService;
 import com.labify.backend.pickup.dto.PickupSummaryDto;
 import com.labify.backend.pickup.dto.ScanRequestDto;
@@ -17,22 +17,20 @@ import com.labify.backend.qr.entity.Qr;
 import com.labify.backend.qr.log.entity.QrScanLog;
 import com.labify.backend.qr.log.repository.QrScanLogRepository;
 import com.labify.backend.qr.repository.QrRepository;
+import com.labify.backend.qr.service.QrDecoder;
 import com.labify.backend.user.entity.User;
 import com.labify.backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.labify.backend.disposal.entity.DisposalStatus.PICKED_UP;
-import static com.labify.backend.lab.request.entity.RequestStatus.CONFIRMED;
-import static com.labify.backend.pickup.entity.PickupStatus.COMPLETED;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +42,21 @@ public class PickupService {
     private final QrScanLogRepository qrScanLogRepository;
     private final NotificationService notificationService;
     private final DisposalItemRepository disposalItemRepository;
+    private final QrDecoder qrDecoder;
+
+    // 업로드 된 QR 이미지에서 코드 문자열을 decode해서 스캔
+    @Transactional
+    public ScanResponseDto processScanImage(Long userId, MultipartFile file) {
+        final String decodedCode;
+        try {
+            decodedCode = qrDecoder.decode(file); // PNG/JPG 등에서 문자열 꺼냄
+        } catch (NotFoundException e) {
+            throw new IllegalArgumentException("QR 코드를 인식하지 못했습니다.");
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 처리 중 오류가 발생했습니다.");
+        }
+        return processScan(userId, new ScanRequestDto(decodedCode));
+    }
 
     // QR 스캔 과정
     @Transactional
