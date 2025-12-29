@@ -126,7 +126,7 @@ gradlew bootRun
         <a href="https://github.com/romdyfo"><img src="https://github.com/romdyfo.png" width="100px;" alt=""/></a>
         </td>
         <td align="center" width="150px">
-        <a href="https://github.com/romdyfo"><img src="https://github.com/ownue.png" width="100px;" alt=""/></a>
+        <a href="https://github.com/ownue"><img src="https://github.com/ownue.png" width="100px;" alt=""/></a>
         </td>
     </tr>
     <tr>
